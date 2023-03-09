@@ -40,21 +40,9 @@ export default {
             }],
         },
         {
-            name: 'embed',
-            title: 'Embed',
-            type: 'object',
-            fields: [
-                {
-                    name: 'type', title: 'Type', type: 'string', initialValue: 'twitter',options: {
-                        list: [
-                            { title: 'Twitter', value: 'twitter' },
-                            { title: 'Youtube', value: 'youtube' }
-                        ], // <-- predefined values},
-                    }
-                },
-                { name: 'postId', title: 'Post_Id', type: 'string' },
-                { name: 'youtubeSrc', title: 'Youtube_src', type: 'url' }
-            ],
+            name: 'embedURL',
+            title: 'EmbedURL',
+            type: 'url',
         },
     ]
 }
