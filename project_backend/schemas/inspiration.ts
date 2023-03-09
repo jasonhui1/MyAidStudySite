@@ -1,6 +1,6 @@
 export default {
-    name: 'inspriation',
-    title: 'Inspriation',
+    name: 'inspiration',
+    title: 'Inspiration',
     type: 'document',
     fields: [
         {
@@ -36,7 +36,7 @@ export default {
             title: 'Keywords',
             type: 'array',
             of: [{
-                type: 'string'
+                type: 'useKeyword'
             }],
         },
         {

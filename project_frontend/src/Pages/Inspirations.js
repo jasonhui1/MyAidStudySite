@@ -4,6 +4,8 @@ import Masonry from 'react-masonry-css';
 import TwitterVideoEmbed from '../Components/TwitterVideoEmbed';
 import { inspiration_data } from '../Data/inspiration_data';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
+import { searchQuery } from '../CMS/getdata';
+import { client } from '../client';
 
 const breakpointColumnsObj = {
     default: 3,
@@ -37,12 +39,14 @@ function CardTitle({ className, title }) {
 
 // const MemoizedMyEmbed = React.memo(MyEmbed);
 
-function MyEmbed({ id, title = '', author, keywords, embed }) {
+function MyEmbed({ _id, title = '', artist, keywords, embed}) {
 
     let embedBlock;
+    //Turn {id, name} to only name
+    let keywordList = keywords.map(keyword => keyword.word);
 
-    if (embed.type === 'Twitter') {
-        embedBlock = <TwitterVideoEmbed key={id} id={embed.id} className='w-full mx-auto' />
+    if (embed.type === 'twitter') {
+        embedBlock = <TwitterVideoEmbed key={embed.postId} id={embed.postId} className='w-full mx-auto' />
     } else {
         embedBlock = <YoutubeEmbed src={embed.src} />
     }
@@ -52,7 +56,7 @@ function MyEmbed({ id, title = '', author, keywords, embed }) {
             <Card className=''>
                 <CardTitle title={title} />
                 <h3 className=''>Keywords:
-                    <span className='font-bold'>{keywords.join(', ')}
+                    <span className='font-bold'>{keywordList.join(', ')}
 
                     </span>
                 </h3>
@@ -78,15 +82,27 @@ function YoutubeEmbed({ src }) {
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState('');
     const [keys, setKeys] = useState(['title'])
+    const [receive_data, setReceive_data] = useState([])
+    const [test, setTest] = useState(true)
 
-    const filter_data = (data) => {
-        if (searchTerm === '') return data;
-        const return_data = data.filter((item) => {
-            return item.keywords.some((keyword) => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
-                || keys.some(key => item[key].toLowerCase().includes(searchTerm.toLowerCase()))
-        })
-        return return_data
-    }
+
+    useEffect(() => {
+        const query = searchQuery(searchTerm.toLowerCase(), keys);
+        client.fetch(query).then((data) => {
+            setReceive_data(data)
+        });
+        console.log('querying')
+    }, [searchTerm, keys] );
+
+
+    //   const filter_data = (data) => {
+    //     if (searchTerm === '') return data;
+    //     const return_data = data.filter((item) => {
+    //         return item.keywords.some((keyword) => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
+    //             || keys.some(key => item[key].toLowerCase().includes(searchTerm.toLowerCase()))
+    //     })
+    //     return return_data
+    // }
 
     const handleAddClick = ((newKey) => {
         if (!keys.includes(newKey)) {
@@ -96,11 +112,9 @@ export function Inspiration() {
 
     const handleRemoveClick = ((newKey) => {
         setKeys(keys.filter((key) => {
-            return !(key===newKey)
+            return !(key === newKey)
         }))
-    })  
-
-  
+    })
 
     return (
         <>
@@ -110,8 +124,8 @@ export function Inspiration() {
 
                     {/* Searching keys buttons */}
                     {/* TODO use icon x */}
-                    {keys.map((key,) => 
-                        (<button className=' btn rounded-lg btn-outline my-2 ' onClick={()=>handleRemoveClick(key)}> X {key}</button>) 
+                    {keys.map((key,) =>
+                        (<button className=' btn rounded-lg btn-outline my-2 ' onClick={() => handleRemoveClick(key)}> X {key}</button>)
                     )}
 
                     {/* Search bar */}
@@ -127,18 +141,17 @@ export function Inspiration() {
                 <div className='flex gap-2 mb-2'>
                     {/* Handle add button */}
                     {/* TODO: - use a loop */}
-                    <button className=' btn rounded-lg' onClick={() =>handleAddClick('title')}> Title </button>
-                    <button className=' btn rounded-lg' onClick={() =>handleAddClick('categories')}> Categories </button>
-                    <button className=' btn rounded-lg' onClick={()=>handleAddClick('author')}> Author </button>
+                    <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
+                    <button className=' btn rounded-lg' onClick={() => handleAddClick('categories')}> Categories </button>
+                    <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
                     {/* <button className=' btn rounded-lg'> Keywords </button> */}
 
                 </div>
 
                 {true &&
                     <Masonry className="p-4 flex animate-slide-fwd gap-4" breakpointCols={breakpointColumnsObj}>
-                    {console.log(keys)}
-                        {filter_data(inspiration_data).map((data) => {
-                            return <MyEmbed key={data.id} {...data} />
+                        {receive_data.map((data) => {
+                            return <MyEmbed key={data._id} {...data} />
                         })}
 
                     </Masonry>}

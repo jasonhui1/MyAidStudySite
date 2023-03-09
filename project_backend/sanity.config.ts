@@ -8,7 +8,7 @@ const devOnlyPlugins = [getStartedPlugin()]
 
 export default defineConfig({
   name: 'default',
-  title: 'khaki-dove',
+  title: 'AidStudySite',
 
   projectId: 'ay3qrpou',
   dataset: 'production',
