@@ -39,16 +39,20 @@ function CardTitle({ className, title }) {
 
 // const MemoizedMyEmbed = React.memo(MyEmbed);
 
-function MyEmbed({ _id, title = '', artist, keywords, embed}) {
+function MyEmbed({ _id, title = '', artist, keywords, embedURL}) {
 
     let embedBlock;
     //Turn {id, name} to only name
     let keywordList = keywords.map(keyword => keyword.word);
 
-    if (embed.type === 'twitter') {
-        embedBlock = <TwitterVideoEmbed key={embed.postId} id={embed.postId} className='w-full mx-auto' />
-    } else {
-        embedBlock = <YoutubeEmbed src={embed.src} />
+    if (embedURL.includes('twitter')) {
+        const postId = embedURL.split('/').pop()
+        embedBlock = <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
+        
+    } else if (embedURL.includes('youtube')) {
+        const postId = embedURL.split('?v=').pop().split('&')[0]
+        const URL = 'https://www.youtube.com/embed/' + postId
+        embedBlock = <YoutubeEmbed src={URL} />
     }
 
     return (
@@ -94,15 +98,6 @@ export function Inspiration() {
         console.log('querying')
     }, [searchTerm, keys] );
 
-
-    //   const filter_data = (data) => {
-    //     if (searchTerm === '') return data;
-    //     const return_data = data.filter((item) => {
-    //         return item.keywords.some((keyword) => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
-    //             || keys.some(key => item[key].toLowerCase().includes(searchTerm.toLowerCase()))
-    //     })
-    //     return return_data
-    // }
 
     const handleAddClick = ((newKey) => {
         if (!keys.includes(newKey)) {
