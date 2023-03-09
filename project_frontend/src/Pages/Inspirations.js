@@ -15,6 +15,17 @@ const breakpointColumnsObj = {
     800: 1,
 };
 
+function YoutubeEmbed({ src }) {
+    return (
+        <iframe
+            className='w-full aspect-video'
+            src={src}
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen>
+        </iframe>
+    )
+}
 
 function Card({ className, children }) {
     const additionalClassName = (className !== undefined ? className : '')
@@ -71,24 +82,11 @@ function MyEmbed({ _id, title = '', artist, keywords, embedURL}) {
 }
 
 
-function YoutubeEmbed({ src }) {
-    return (
-        <iframe
-            className='w-full aspect-video'
-            src={src}
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen>
-        </iframe>
-    )
-}
 
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState('');
     const [keys, setKeys] = useState(['title'])
     const [receive_data, setReceive_data] = useState([])
-    const [test, setTest] = useState(true)
-
 
     useEffect(() => {
         const query = searchQuery(searchTerm.toLowerCase(), keys);

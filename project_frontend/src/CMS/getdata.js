@@ -10,9 +10,6 @@ export const searchQuery = (searchTerm, keys) => {
     // const keymap = searchArray.map(searchArray => ` ${searchKeyWord}`).join('&&')
     const allmap = searchArray.map(searchArray => `[${keys}] match '*${searchArray}*' || ${keywordmap}`).join('&&')
 
-// 
-    // '2DVFX' in keywords[]->word
-
     const query = `*[_type=='inspiration' && (${allmap} )]{
         _id,
           title,
@@ -22,8 +19,5 @@ export const searchQuery = (searchTerm, keys) => {
           keywords[]->{_id, word}
           
       }`
-
-      console.log(query)
-
     return query
 };
