@@ -30,9 +30,8 @@ export default function Breakdown() {
 
 const SampleVideoComponent = ({ value}) => {
     const [_file, id, extension] = value.asset._ref.split('-');
-
-    const PROJECT_ID= process.env.REACT_APP_SANITY_PROJECT_ID;
-    const DATASET = 'production'
+    const PROJECT_ID= client.config().projectId
+    const DATASET = client.config().dataset
 
     const url = `https://cdn.sanity.io/files/${PROJECT_ID}/${DATASET}/${id}.${extension}`
 
