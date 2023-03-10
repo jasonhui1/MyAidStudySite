@@ -18,6 +18,10 @@ export default {
                 },
                 {
                     type: 'image'
+                },
+                {
+                    type: 'file',
+                    storeOriginalFilename: true
                 }
             ]
         },

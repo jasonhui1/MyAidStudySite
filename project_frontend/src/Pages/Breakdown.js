@@ -28,20 +28,37 @@ export default function Breakdown() {
     )
 }
 
+const SampleVideoComponent = ({ value}) => {
+    const [_file, id, extension] = value.asset._ref.split('-');
 
-const SampleImageComponent = ({value, isInline}) => {
+    const PROJECT_ID= process.env.REACT_APP_SANITY_PROJECT_ID;
+    const DATASET = 'production'
+
+    const url = `https://cdn.sanity.io/files/${PROJECT_ID}/${DATASET}/${id}.${extension}`
+
     return (
-      <img
-        src={urlFor(value)
-          .width(isInline ? 100 : 800)
-          .fit('max')
-          .auto('format')
-          .url()}
-        alt={value.alt || ' '}
-        loading="lazy"
-      />
+        <video controls>
+            <source src={url} type="video/mp4"/>
+        </video>
     )
-  }
+
+}
+
+
+const SampleImageComponent = ({ value, isInline }) => {
+    console.log('value', value)
+    return (
+        <img
+            src={urlFor(value)
+                .width(isInline ? 100 : 800)
+                .fit('max')
+                .auto('format')
+                .url()}
+            alt={value.alt || ' '}
+            loading="lazy"
+        />
+    )
+}
 
 const components = {
     listItem: {
@@ -53,11 +70,12 @@ const components = {
     },
     types: {
         image: SampleImageComponent,
+        file: SampleVideoComponent,
         code: props => (
             <pre data-language={props.node.language}>
                 <code>{props.node.code}</code>
             </pre>
-            )
-      },
+        )
+    },
 
 }
