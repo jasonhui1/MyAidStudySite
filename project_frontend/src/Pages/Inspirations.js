@@ -1,3 +1,6 @@
+// ToDO: optimise tweet/ youtube call
+//  - by caching?
+
 import React, { useState, useEffect, useMemo } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
 import Masonry from 'react-masonry-css';
@@ -49,7 +52,6 @@ function CardTitle({ className, title }) {
 
 
 // const MemoizedMyEmbed = React.memo(MyEmbed);
-
 function MyEmbed({ _id, title = '', artist, keywords, embedURL}) {
 
     let embedBlock;
@@ -63,7 +65,7 @@ function MyEmbed({ _id, title = '', artist, keywords, embedURL}) {
     } else if (embedURL.includes('youtube')) {
         const postId = embedURL.split('?v=').pop().split('&')[0]
         const URL = 'https://www.youtube.com/embed/' + postId
-        embedBlock = <YoutubeEmbed src={URL} />
+        embedBlock = <YoutubeEmbed key={postId} src={URL}/>
     }
 
     return (
