@@ -7,6 +7,11 @@ export default{
             name: 'word',
             title: 'Word',
             type: 'string'
+        },
+        {
+            name: 'category',
+            title: 'Category',
+            type: 'string'
         }
     ]
 }

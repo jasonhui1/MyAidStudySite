@@ -137,7 +137,7 @@ export function Inspiration() {
                     {/* Handle add button */}
                     {/* TODO: - use a loop */}
                     <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
-                    <button className=' btn rounded-lg' onClick={() => handleAddClick('categories')}> Categories </button>
+                    {/* <button className=' btn rounded-lg' onClick={() => handleAddClick('categories')}> Categories </button> */}
                     <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
                     {/* <button className=' btn rounded-lg'> Keywords </button> */}
 

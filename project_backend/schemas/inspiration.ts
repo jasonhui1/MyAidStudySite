@@ -26,11 +26,11 @@ export default {
             title: 'Artist ',
             type: 'string'
         },
-        {
-            name: 'category',
-            title: 'Category ',
-            type: 'string'
-        },
+        // {
+        //     name: 'category',
+        //     title: 'Category ',
+        //     type: 'string'
+        // },
         {
             name: 'keywords',
             title: 'Keywords',
