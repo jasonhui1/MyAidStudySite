@@ -1,7 +1,7 @@
 // ToDO: optimise tweet/ youtube call
 //  - by caching?
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo,useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
 import Masonry from 'react-masonry-css';
 import TwitterVideoEmbed from '../Components/TwitterVideoEmbed';
@@ -85,16 +85,17 @@ export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState('');
     const [keys, setKeys] = useState(['title'])
     const [receive_data, setReceive_data] = useState([])
-    const [keywords, setKeywords] = useState([])
     const [checkedState, setCheckedState] = useState();
     const [test, setTest] = useState(0)
+    
+    let keywords = useRef([])
 
     // Get inspiration data
     useEffect(() => {
         // console.log('querying')
-        const selectedKeywords = keywords.filter((_,i)=>checkedState[i])
-        console.log('selectedKeywords', selectedKeywords)
+        const selectedKeywords = keywords.current.filter((_,i)=>checkedState[i])
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords);
+        console.log('query', query)
         client.fetch(query).then((data) => {
             setReceive_data(data)
             console.log('data.length', data.length)
@@ -106,7 +107,7 @@ export function Inspiration() {
         const query = getKeywordData();
         client.fetch(query).then((keywordData) => {
             const words = keywordData.map(({word})=> word)
-            setKeywords(words)
+            keywords.current = words
             setCheckedState(new Array(keywordData.length).fill(false))
         });
     }, []);
@@ -174,7 +175,7 @@ export function Inspiration() {
                 Advance Setting
                 {/* Maybe a grid is better */}
                 <div className='flex flex-wrap gap-4 outline p-4 '>
-                    {keywords.map((word,i) => {
+                    {keywords.current.map((word,i) => {
                         return <CheckBox value={word} onChange={() =>handleCheckbox(i)}/>
                     })}
                 </div>

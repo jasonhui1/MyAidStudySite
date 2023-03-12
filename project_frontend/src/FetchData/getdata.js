@@ -25,8 +25,8 @@ export const searchInspirationQuery = (searchTerm, keys, keywords=[]) => {
         filter.push(filterKeyword)
     }
     
-    if (searchArray === '') {
-        const filterRestOfKeys = searchArray?.map(searchArray => `([${keys}] match '*${searchArray}*' || keywords[]->word match '*${searchArray}*')`).join('&&')
+    if (searchArray.length > 0) {
+        const filterRestOfKeys = searchArray?.map(item => `([${keys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
         filter.push(filterRestOfKeys)
     }
 
