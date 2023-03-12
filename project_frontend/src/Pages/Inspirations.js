@@ -95,10 +95,11 @@ export function Inspiration() {
         // console.log('querying')
         const selectedKeywords = keywords.current.filter((_,i)=>checkedState[i])
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords);
+
         console.log('query', query)
         client.fetch(query).then((data) => {
             setReceive_data(data)
-            console.log('data.length', data.length)
+            console.log('data', data)
         });
     }, [searchTerm, keys, checkedState]);
 

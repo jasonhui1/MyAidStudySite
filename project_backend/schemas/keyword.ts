@@ -8,10 +8,11 @@ export default{
             title: 'Word',
             type: 'string'
         },
-        {
+        { 
             name: 'category',
             title: 'Category',
-            type: 'string'
+            type: 'reference',
+            to: [{type:'category'}]
         }
     ]
 }
