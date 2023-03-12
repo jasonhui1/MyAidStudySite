@@ -2,15 +2,19 @@
 
 @layer base {
     h1 {
-        @apply text-6xl;
+        @apply text-3xl;
     }
 
     h2 {
-        @apply text-5xl;
+        @apply text-2xl;
     }
 
     h3 {
-        @apply text-4xl;
+        @apply text-xl;
+    }
+
+    h4 {
+        @apply text-lg;
     }
 
     ul {
@@ -59,7 +63,8 @@ body {
 
 
 .portableText>p:empty:before {
-    content: "\00a0";
+    /* Make <p> with no content becomes a line break */
+    content: "\00a0"; /*00a0 stands for non-breaking space, can be anything actually? (just not '')*/
     white-space: pre;
 }
 

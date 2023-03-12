@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { client, urlFor } from '../client';
 import { PortableText } from '@portabletext/react'
-import { getBreakdownData } from '../CMS/getdata';
+import { getBreakdownData } from '../FetchData/getdata';
 // import {getImageDimensions} from '@sanity/asset-utils'
 
 export default function Breakdown() {
@@ -21,7 +21,7 @@ export default function Breakdown() {
     return (
         <>
             <div>Breakdown</div>
-            {portableText}
+            <div className='portableText'>{portableText}</div>
 
         </>
     )
@@ -44,7 +44,7 @@ const SampleVideoComponent = ({ value}) => {
 
 
 const SampleImageComponent = ({ value, isInline }) => {
-    console.log('value', value)
+    // console.log('value', value)
     return (
         <img
             src={urlFor(value)
@@ -59,24 +59,23 @@ const SampleImageComponent = ({ value, isInline }) => {
 }
 
 const components = {
-    // list: {
-    //     // Ex. 1: customizing common list types
-    //     bullet: ({children}) => <ul className="mt-xl">{children}</ul>,
-    //     number: ({children}) => <ol className="mt-lg">{children}</ol>,
-    
-    //     // Ex. 2: rendering custom lists
-    //     checkmarks: ({children}) => <ol className="m-auto text-lg">{children}</ol>,
-    //   },
-    listItem: {
+    list: {
         // Ex. 1: customizing common list types
-        // bullet: ({ children }) => <li style={{ listStyleType: 'disclosure-closed' }}>{children}</li>,
-        // number: ({ children }) => <ol className="mt-lg">{children}</ol>,
-        // checkmarks: ({ children }) => <li>✅ {children}</li>,
+        bullet: ({children}) => <ul className="mt-xl">{children}</ul>,
+        number: ({children}) => <ol className="mt-lg">{children}</ol>,
+    
+        // Ex. 2: rendering custom lists
+        checkmarks: ({children}) => <ol className="m-auto text-lg">{children}</ol>,
+      },
+    listItem: {
+        bullet: ({ children }) => <li>{children}</li>,
+        number: ({ children }) => <li>{children}</li>,
+        checkmarks: ({ children }) => <li>✅ {children}</li>,
 
     },
     types: {
         image: SampleImageComponent,
-        // file: SampleVideoComponent,
+        file: SampleVideoComponent,
         code: props => (
             <pre data-language={props.node.language}>
                 <code>{props.node.code}</code>

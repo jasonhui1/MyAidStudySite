@@ -3,6 +3,11 @@ export function getBreakdownData() {
     return query
 } 
 
+export function getKeywordData() {
+    const query = `*[_type == "keyword"] {word}`
+    return query
+} 
+
 export const searchInspirationQuery = (searchTerm, keys, keywords=[]) => {
 
     if (keys.length === 0) {
@@ -16,7 +21,7 @@ export const searchInspirationQuery = (searchTerm, keys, keywords=[]) => {
     filter.push(`_type=='inspiration'`)
 
     if (keywords.length > 0){
-        const filterKeyword = `keywords[]->word match '${keywords}'`
+        const filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('&&')
         filter.push(filterKeyword)
     }
     
