@@ -1,4 +1,5 @@
 @tailwind base;
+
 @layer base {
     h1 {
         @apply text-6xl;
@@ -11,10 +12,11 @@
     h3 {
         @apply text-4xl;
     }
-    
-    ul{
+
+    ul {
         @apply block list-disc mx-4 my-1
     }
+
     ul ul {
         list-style-type: circle
     }
@@ -23,25 +25,23 @@
         list-style-type: square
     }
 
-    ol{
+    ol {
         @apply block list-decimal mx-4 my-1
     }
 
-    ol ol{
-        list-style-type:lower-alpha
-
+    ol ol {
+        list-style-type: lower-alpha
     }
 
-    ol ol ol{
-        list-style-type:lower-roman
-
+    ol ol ol {
+        list-style-type: lower-roman
     }
 
     li {
         @apply list-item mx-2
     }
 
-    body{
+    body {
         @apply block m-2
     }
 }
@@ -55,6 +55,12 @@ body {
 
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+
+.portableText>p:empty:before {
+    content: "\00a0";
+    white-space: pre;
 }
 
 /* 
