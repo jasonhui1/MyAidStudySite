@@ -1,8 +1,5 @@
-/* @tailwind base; */
-@tailwind components;
-@tailwind utilities;
-
-/* @layer base {
+@tailwind base;
+@layer base {
     h1 {
         @apply text-6xl;
     }
@@ -16,9 +13,41 @@
     }
     
     ul{
-        @apply list-disc list-inside mx-3
+        @apply block list-disc mx-4 my-1
     }
-} */
+    ul ul {
+        list-style-type: circle
+    }
+
+    ul ul ul {
+        list-style-type: square
+    }
+
+    ol{
+        @apply block list-decimal mx-4 my-1
+    }
+
+    ol ol{
+        list-style-type:lower-alpha
+
+    }
+
+    ol ol ol{
+        list-style-type:lower-roman
+
+    }
+
+    li {
+        @apply list-item mx-2
+    }
+
+    body{
+        @apply block m-2
+    }
+}
+
+@tailwind components;
+@tailwind utilities;
 
 body {
     font-family: 'Lato', sans-serif;

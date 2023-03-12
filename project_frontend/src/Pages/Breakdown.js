@@ -59,16 +59,24 @@ const SampleImageComponent = ({ value, isInline }) => {
 }
 
 const components = {
+    // list: {
+    //     // Ex. 1: customizing common list types
+    //     bullet: ({children}) => <ul className="mt-xl">{children}</ul>,
+    //     number: ({children}) => <ol className="mt-lg">{children}</ol>,
+    
+    //     // Ex. 2: rendering custom lists
+    //     checkmarks: ({children}) => <ol className="m-auto text-lg">{children}</ol>,
+    //   },
     listItem: {
         // Ex. 1: customizing common list types
-        bullet: ({ children }) => <li style={{ listStyleType: 'disclosure-closed' }}>{children}</li>,
-        number: ({ children }) => <ol className="mt-lg">{children}</ol>,
-        checkmarks: ({ children }) => <li>✅ {children}</li>,
+        // bullet: ({ children }) => <li style={{ listStyleType: 'disclosure-closed' }}>{children}</li>,
+        // number: ({ children }) => <ol className="mt-lg">{children}</ol>,
+        // checkmarks: ({ children }) => <li>✅ {children}</li>,
 
     },
     types: {
         image: SampleImageComponent,
-        file: SampleVideoComponent,
+        // file: SampleVideoComponent,
         code: props => (
             <pre data-language={props.node.language}>
                 <code>{props.node.code}</code>
