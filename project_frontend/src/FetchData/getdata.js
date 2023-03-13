@@ -9,7 +9,10 @@ export function getKeywordData() {
 }
 
 export function getCategoryData() {
-    const query = `*[_type == "category"] {word}['word']`
+    const query = `*[_type == "category"] {
+        word,
+        'keywords': *[_type=='keyword' && references(^._id) ].word,
+      }`
     return query
 }
 

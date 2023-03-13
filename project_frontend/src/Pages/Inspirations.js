@@ -83,18 +83,28 @@ function CheckBox({ value, onChange }) {
     )
 }
 
+function Radio({ value, onChange }) {
+    return (
+        <label>
+            <input type="radio" name="artist_name" value={value} onChange={onChange} /> {value}
+        </label>
+    )
+}
+
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState('');
     const [keys, setKeys] = useState(['title'])
     const [receive_data, setReceive_data] = useState([])
     const [test, setTest] = useState(0)
 
-    const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, keywords, categories, artists] = useInitialFetch()
+    const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
     // Get inspiration data
+
+
     useEffect(() => {
-        // console.log('querying')
-        const selectedKeywords = keywords.current.filter((_, i) => keywordCheckState[i])
-        const selectedArtists = artists.current.filter((_, i) => artistCheckState[i])
+        console.log('querying')
+        const selectedKeywords = all_keywords.filter((_, i) => keywordCheckState[i])
+        const selectedArtists = all_artists.filter((_, i) => artistCheckState[i])
 
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords, selectedArtists);
 
@@ -121,19 +131,22 @@ export function Inspiration() {
         const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
             i === index ? !check : check
         );
+        // console.log(index, updatedKeywordCheckState)
         setKeywordCheckState(updatedKeywordCheckState);
     })
 
     const handleArtistCheckbox = ((index) => {
+        //Maybe I want to select a range of all_artists later, currently the query only checks for AND
         const updatedArtistCheckState = artistCheckState.map((check, i) =>
-            i === index
+            i === index ? !check : false
         );
         setArtistCheckState(updatedArtistCheckState);
     })
 
-    const handleTest = (() => {
-        setTest(test => test + 1);
-    })
+    // const handleTest = (() => {
+    //     console.log('test', test)
+    //     setTest(test => test + 1);
+    // })
 
     // console.log('rending')
 
@@ -164,7 +177,7 @@ export function Inspiration() {
                     {/* Handle add button */}
                     {/* TODO: - use a loop */}
                     <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
-                    {/* <button className=' btn rounded-lg' onClick={() => handleAddClick('categories')}> Categories </button> */}
+                    {/* <button className=' btn rounded-lg' onClick={() => handleAddClick('all_categories')}> Categories </button> */}
                     <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
                     {/* <button className=' btn rounded-lg'> Keywords </button> */}
 
@@ -172,19 +185,30 @@ export function Inspiration() {
 
                 Advance Setting
                 <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-
-                    {artists.current.map((name, i) => {
+                    {all_artists.map((name, i) => {
                         return (
-                            <label>
-                                <input type="radio" name="artist_name" value={name} onChange={() => handleArtistCheckbox(i)}/> {name}
-                            </label>
+                            <Radio value={name} onChange={() => handleArtistCheckbox(i)}></Radio>
                         )
                     })}
                 </div>
-                <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-                    {keywords.current.map((word, i) => {
-                        return <CheckBox value={word} onChange={() => handleKeywordCheckbox(i)} />
-                    })}
+
+                <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
+                    {(
+                        all_categories.map(({ word, keywords }, i) => {
+                            return (
+                                <>
+                                    <div>
+                                        <h3 className=' font-bold'>{word}</h3>
+                                        <hr className=' bg-black' />
+                                        <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
+                                            {keywords.map((keyword, j) => {
+                                                return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(all_keywords.indexOf(keyword))} />
+                                            })}
+                                        </div>
+                                    </div>
+                                </>
+                            )
+                        }))}
                 </div>
 
                 {true &&
@@ -208,19 +232,19 @@ export function Inspiration() {
 
 function useInitialFetch() {
 
-    const [keywordCheckState, setKeywordCheckState] = useState([]);
+    const [keywordCheckState, setKeywordCheckState] = useState([[]]);
     const [artistCheckState, setArtistCheckState] = useState([]);
 
     let keywords = useRef([])
-    let categories = useRef([])
+    let categories = useRef([]);
     let artists = useRef([])
 
     useEffect(() => {
-        const keywordQuery = getKeywordData();
-        client.fetch(keywordQuery).then((keywordData) => {
-            keywords.current = keywordData
-            setKeywordCheckState(new Array(keywordData.length).fill(false))
-        });
+        // const keywordQuery = getKeywordData();
+        // client.fetch(keywordQuery).then((keywordData) => {
+        //     keywords.current = keywordData
+        //     setKeywordCheckState(new Array(keywordData.length).fill(false))
+        // });
 
         const artistQuery = getArtistData()
         client.fetch(artistQuery).then((artistData) => {
@@ -228,12 +252,31 @@ function useInitialFetch() {
             setArtistCheckState(new Array(artistData.length).fill(false))
         });
 
-        const categoryQuery = getArtistData()
+        const categoryQuery = getCategoryData()
         client.fetch(categoryQuery).then((categoryData) => {
             categories.current = categoryData
+
+            const flatten_array = flattenArray(categoryData, 'keywords')
+            keywords.current = flatten_array
+
+
+            setKeywordCheckState(new Array(flatten_array.length).fill(false))
         });
 
     }, []);
 
-    return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, keywords, categories, artists]
+    return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, keywords.current, categories.current, artists.current]
+}
+
+function flattenArray(array, value) {
+
+    const flatten_array = array.map((row, i) => {
+        // row[value].map((cell, j) => {
+        //     console.log(cell)
+        //     return cell
+        // })
+        return row[value]
+    })
+
+    return flatten_array.flat()
 }
