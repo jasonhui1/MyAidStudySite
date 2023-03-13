@@ -101,13 +101,11 @@ export function Inspiration() {
     const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
     // Get inspiration data
     const [handleAddClick, handleRemoveClick] = handleKeys(keys, setKeys)
-    const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes( all_categories, all_keywords, keywordCheckState, setKeywordCheckState,  categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
+    const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
 
     useEffect(() => {
         console.log('querying')
-        const selectedKeywords = all_keywords.filter((_, i) => keywordCheckState[i])
-        console.log(selectedKeywords)
-
+        const selectedKeywords = all_keywords.flat().filter((_, i) => keywordCheckState.flat()[i])
         const selectedArtists = all_artists.filter((_, i) => artistCheckState[i])
 
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords, selectedArtists);
@@ -121,14 +119,7 @@ export function Inspiration() {
 
     // Check category if all sub keywords are checked
     useEffect(() => {
-        const updatedCategoriesCheckState = categoriesCheckState.map((check, i) => {
-            const keywords = all_categories[i].keywords
-            const initial_index = all_keywords.indexOf(keywords[0])
-            const end_index = initial_index + keywords.length
-
-            const all_true = keywordCheckState.slice(initial_index, end_index).every((isChecked)=> isChecked)
-            return all_true
-        })
+        const updatedCategoriesCheckState = keywordCheckState.map((array, i) => (array.every((isChecked) => isChecked)))
         setCategoriesCheckState(updatedCategoriesCheckState)
 
     }, [keywordCheckState]);
@@ -194,8 +185,7 @@ export function Inspiration() {
                                         <hr className=' bg-black' />
                                         <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
                                             {keywords.map((keyword, j) => {
-                                                const index = all_keywords.indexOf(keyword)
-                                                return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(index)} check={keywordCheckState[index]} />
+                                                return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(i, j)} check={keywordCheckState[i][j]} />
                                             })}
                                         </div>
                                     </div>
@@ -244,9 +234,14 @@ function useInitialFetch() {
             categories.current = categoryData
             setCategoriesCheckState(new Array(categoryData.length).fill(false))
 
-            const flatten_array = flattenArray(categoryData, 'keywords')
-            keywords.current = flatten_array
-            setKeywordCheckState(new Array(flatten_array.length).fill(false))
+            keywords.current = categoryData.map((row) => (row['keywords']))
+            const two_d_array = new Array(categoryData.length).fill([]).map((row, i) => new Array(categoryData[i].keywords.length).fill(false))
+            setKeywordCheckState(two_d_array)
+
+
+            // const flatten_array = flattenArray(categoryData, 'keywords')
+            // keywords.current = flatten_array
+            // setKeywordCheckState(new Array(flatten_array.length).fill(false))
         });
 
     }, []);
@@ -254,7 +249,7 @@ function useInitialFetch() {
     return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, keywords.current, categories.current, artists.current]
 }
 
-function handleKeys(keys, setKeys, ){
+function handleKeys(keys, setKeys,) {
     const handleAddClick = ((newKey) => {
         if (!keys.includes(newKey)) {
             setKeys([...keys, newKey])
@@ -270,19 +265,7 @@ function handleKeys(keys, setKeys, ){
     return [handleAddClick, handleRemoveClick]
 }
 
-function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState,  categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState) {
-
-
-    const updateKeywordAfterCategory = ((isChecked, category_index) => {
-        //Update keyword state too
-        const keywords = all_categories[category_index].keywords
-        const initial_index = all_keywords.indexOf(keywords[0])
-        const end_index = initial_index + keywords.length
-        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
-            (i >= initial_index && i < end_index) ? isChecked : check
-        );
-        setKeywordCheckState(updatedKeywordCheckState);
-    })
+function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState) {
 
     const handleCategoryCheckbox = ((index) => {
         const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
@@ -290,13 +273,23 @@ function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKe
         );
         const isChecked = updatedCategoriesCheckState[index]
         setCategoriesCheckState(updatedCategoriesCheckState)
-        updateKeywordAfterCategory(isChecked, index)
+
+        //Checks/ unchecks all related keywords
+        const updatedKeywordCheckState = keywordCheckState.map((row, i) => {
+            if (!(i === index)) return row
+
+            return row.map((_) => isChecked)
+        });
+        setKeywordCheckState(updatedKeywordCheckState);
+
     })
 
-    const handleKeywordCheckbox = ((index) => {
-        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
-            i === index ? !check : check
-        );
+    const handleKeywordCheckbox = ((i, j) => {
+        const updatedKeywordCheckState = keywordCheckState.map((row, current_i) => {
+            if (!(current_i === i)) return row
+            return row.map((cell, current_j) => (j === current_j ? !cell : cell))
+        });
+
         setKeywordCheckState(updatedKeywordCheckState);
     })
 
