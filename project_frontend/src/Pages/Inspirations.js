@@ -97,22 +97,20 @@ export function Inspiration() {
     const [receive_data, setReceive_data] = useState([])
     const [test, setTest] = useState(0)
 
-    const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
+    const [selectedKeywords, setSelectedKeywords, selectedArtists, setSelectedArtists, categories, artists] = useInitialFetch()
     // Get inspiration data
 
 
     useEffect(() => {
-        console.log('querying')
-        const selectedKeywords = all_keywords.filter((_, i) => keywordCheckState[i])
-        const selectedArtists = all_artists.filter((_, i) => artistCheckState[i])
-
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords, selectedArtists);
-
+        console.log('querying')
         console.log('query', query)
+        // console.log('selectedArtists', selectedArtists)
+        // console.log('selectedKeywords', selectedKeywords)
         client.fetch(query).then((data) => {
             setReceive_data(data)
         });
-    }, [searchTerm, keys, keywordCheckState, artistCheckState]);
+    }, [searchTerm, keys, selectedKeywords, selectedArtists]);
 
 
     const handleAddClick = ((newKey) => {
@@ -127,20 +125,21 @@ export function Inspiration() {
         }))
     })
 
-    const handleKeywordCheckbox = ((index) => {
-        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
-            i === index ? !check : check
-        );
-        // console.log(index, updatedKeywordCheckState)
-        setKeywordCheckState(updatedKeywordCheckState);
+    const handleKeywordCheckbox = ((word) => {
+        if (selectedKeywords.includes(word)){
+            setSelectedKeywords(selectedKeywords.filter((keyword)=>keyword===word))
+        } else {
+            setSelectedKeywords([...selectedKeywords, word])
+        }
     })
 
-    const handleArtistCheckbox = ((index) => {
-        //Maybe I want to select a range of all_artists later, currently the query only checks for AND
-        const updatedArtistCheckState = artistCheckState.map((check, i) =>
-            i === index ? !check : false
-        );
-        setArtistCheckState(updatedArtistCheckState);
+    const handleArtistCheckbox = ((name) => {
+        setSelectedArtists([name])
+        // if (selectedArtists.includes(name)){
+        //     setSelectedArtists(selectedArtists.filter((artist_name)=>artist_name===name))
+        // } else {
+        //     setSelectedArtists([...selectedArtists, name])
+        // }
     })
 
     // const handleTest = (() => {
@@ -185,16 +184,16 @@ export function Inspiration() {
 
                 Advance Setting
                 <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-                    {all_artists.map((name, i) => {
+                    {artists.map((name, i) => {
                         return (
-                            <Radio value={name} onChange={() => handleArtistCheckbox(i)}></Radio>
+                            <Radio value={name} onChange={() => handleArtistCheckbox(name)}></Radio>
                         )
                     })}
                 </div>
 
                 <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
                     {(
-                        all_categories.map(({ word, keywords }, i) => {
+                        categories.map(({ word, keywords }, i) => {
                             return (
                                 <>
                                     <div>
@@ -202,7 +201,7 @@ export function Inspiration() {
                                         <hr className=' bg-black' />
                                         <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
                                             {keywords.map((keyword, j) => {
-                                                return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(all_keywords.indexOf(keyword))} />
+                                                return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(keyword)} />
                                             })}
                                         </div>
                                     </div>
@@ -232,51 +231,39 @@ export function Inspiration() {
 
 function useInitialFetch() {
 
-    const [keywordCheckState, setKeywordCheckState] = useState([[]]);
-    const [artistCheckState, setArtistCheckState] = useState([]);
+    const [selectedKeywords, setSelectedKeywords] = useState([])
+    const [selectedArtists, setSelectedArtists] = useState([])
 
-    let keywords = useRef([])
     let categories = useRef([]);
     let artists = useRef([])
 
     useEffect(() => {
-        // const keywordQuery = getKeywordData();
-        // client.fetch(keywordQuery).then((keywordData) => {
-        //     keywords.current = keywordData
-        //     setKeywordCheckState(new Array(keywordData.length).fill(false))
-        // });
 
         const artistQuery = getArtistData()
         client.fetch(artistQuery).then((artistData) => {
             artists.current = artistData
-            setArtistCheckState(new Array(artistData.length).fill(false))
         });
 
         const categoryQuery = getCategoryData()
         client.fetch(categoryQuery).then((categoryData) => {
             categories.current = categoryData
 
-            const flatten_array = flattenArray(categoryData, 'keywords')
-            keywords.current = flatten_array
-
-
-            setKeywordCheckState(new Array(flatten_array.length).fill(false))
         });
 
     }, []);
 
-    return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, keywords.current, categories.current, artists.current]
+    return [selectedKeywords, setSelectedKeywords, selectedArtists, setSelectedArtists, categories.current, artists.current]
 }
 
-function flattenArray(array, value) {
+// function flattenArray(array, value) {
 
-    const flatten_array = array.map((row, i) => {
-        // row[value].map((cell, j) => {
-        //     console.log(cell)
-        //     return cell
-        // })
-        return row[value]
-    })
+//     const flatten_array = array.map((row, i) => {
+//         // row[value].map((cell, j) => {
+//         //     console.log(cell)
+//         //     return cell
+//         // })
+//         return row[value]
+//     })
 
-    return flatten_array.flat()
-}
+//     return flatten_array.flat()
+// }
