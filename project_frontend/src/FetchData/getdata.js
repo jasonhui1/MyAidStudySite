@@ -41,7 +41,7 @@ export const searchInspirationQuery = (searchTerm, normalkeys, keywords = [], ar
     normalkeys = arrayMapping(normalkeys, mapping)
 
     // Search through all words with space between them
-    const searchArray = searchTerm.split(' ').filter(i => i)
+    let searchArray = searchTerm.split(' ').filter(i => i)
 
     let filter = []
     //initial
@@ -49,20 +49,22 @@ export const searchInspirationQuery = (searchTerm, normalkeys, keywords = [], ar
 
     //Match checked keywords, check for exact '_', instead of '*_*'
     if (keywords.length > 0) {
-        filter.push(`references(^._id)`)
-
-        const filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('&&')
+        let filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('||')
+        filterKeyword = `(${filterKeyword})`
+        
         filter.push(filterKeyword)
     }
 
     //Match search words, keywords[]->word is in a different space because its an array (thats how GROQ works, deal with it)
     if (searchArray.length > 0) {
-        const filterRestOfKeys = searchArray?.map(item => `([${normalkeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
+        let filterRestOfKeys = searchArray?.map(item => `([${normalkeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
+        filterRestOfKeys = `(${filterRestOfKeys})`
         filter.push(filterRestOfKeys)
     }
 
     if (artists.length > 0) {
-        const filterArtist = artists.map(name => `artist->name match '${name}'`).join('&&')
+        let filterArtist = artists.map(name => `artist->name match '${name}'`).join('||')
+        filterArtist = `(${filterArtist})`
         filter.push(filterArtist)
     }
 
@@ -77,16 +79,16 @@ export const searchInspirationQuery = (searchTerm, normalkeys, keywords = [], ar
         
     }`;
 
-    if (keywords.length === 0) {
-        return inspirationQuery 
+    // if (keywords.length === 0) {
+    return inspirationQuery 
 
-    } else {
-        //only check first keyword to avoid returning the same post
-        const query = `*[_type=="keyword" && lower(word) == lower('${keywords[0]}')] {
-            'inspiration': ${inspirationQuery}
-        }[0]['inspiration']`
-        return query
-    }
+    // } else {
+    //     //only check first keyword to avoid returning the same post
+    //     const query = `*[_type=="keyword" && lower(word) == lower('${keywords[0]}')] {
+    //         'inspiration': ${inspirationQuery}
+    //     }[0]['inspiration']`
+    //     return query
+    // }
 
     //Score system, not the best because sanity cant calculate score when matching with array(keywords)
     // *[_type=='inspiration'] | score(artist match "*late*" || title match '*volume*')    {
