@@ -100,7 +100,8 @@ export function Inspiration() {
 
     const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
     // Get inspiration data
-
+    const [handleAddClick, handleRemoveClick] = handleKeys(keys, setKeys)
+    const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes( all_categories, all_keywords, keywordCheckState, setKeywordCheckState,  categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
 
     useEffect(() => {
         console.log('querying')
@@ -133,63 +134,16 @@ export function Inspiration() {
     }, [keywordCheckState]);
 
 
-    const handleAddClick = ((newKey) => {
-        if (!keys.includes(newKey)) {
-            setKeys([...keys, newKey])
-        }
-    })
-
-    const handleRemoveClick = ((newKey) => {
-        setKeys(keys.filter((key) => {
-            return !(key === newKey)
-        }))
-    })
-
-    const updateKeywordAfterCategory = ((isChecked, category_index) => {
-        //Update keyword state too
-        const keywords = all_categories[category_index].keywords
-        const initial_index = all_keywords.indexOf(keywords[0])
-        const end_index = initial_index + keywords.length
-        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
-            (i >= initial_index && i < end_index) ? isChecked : check
-        );
-        setKeywordCheckState(updatedKeywordCheckState);
-    })
-
-    const handleCategoryCheckbox = ((index) => {
-        const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
-            i === index ? !check : check
-        );
-        const isChecked = updatedCategoriesCheckState[index]
-        setCategoriesCheckState(updatedCategoriesCheckState)
-        updateKeywordAfterCategory(isChecked, index)
-    })
-
-    const handleKeywordCheckbox = ((index) => {
-        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
-            i === index ? !check : check
-        );
-        setKeywordCheckState(updatedKeywordCheckState);
-    })
-
-    const handleArtistCheckbox = ((index) => {
-        //Maybe I want to select a range of all_artists later, currently the query only checks for AND
-        const updatedArtistCheckState = artistCheckState.map((check, i) =>
-            i === index ? !check : false
-        );
-        setArtistCheckState(updatedArtistCheckState);
-    })
-
-    const handleTest = (() => {
-        console.log('test', test)
-        setTest(test => test + 1);
-    })
+    // const handleTest = (() => {
+    //     console.log('test', test)
+    //     setTest(test => test + 1);
+    // })
 
     // console.log('rending')
 
     return (
         <>
-            <button onClick={handleTest}>abc</button>
+            {/* <button onClick={handleTest}>abc</button> */}
             <div className=' container mx-auto'>
                 <div className="mt-4 mb-2 flex gap-2 items-center w-full px-2 rounded-md bg-white border-none outline focus-within:shadow-sm">
                     <IoMdSearch fontSize={21} className="ml-1" />
@@ -250,20 +204,13 @@ export function Inspiration() {
                         }))}
                 </div>
 
-                {false &&
+                {true &&
                     <Masonry className="p-4 flex animate-slide-fwd gap-4" breakpointCols={breakpointColumnsObj}>
                         {receive_data.map((data) => {
                             return <MyEmbed key={data._id} {...data} />
                         })}
 
                     </Masonry>}
-
-                {/* <TwitterTimelineEmbed
-                sourceType="url"
-                url="https://twitter.com/cmzw_"
-                tweetLimit="3"
-                options={{ height: 800, width: 600 }}
-            /> */}
             </div>
         </>
     )
@@ -306,6 +253,65 @@ function useInitialFetch() {
 
     return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, keywords.current, categories.current, artists.current]
 }
+
+function handleKeys(keys, setKeys, ){
+    const handleAddClick = ((newKey) => {
+        if (!keys.includes(newKey)) {
+            setKeys([...keys, newKey])
+        }
+    })
+
+    const handleRemoveClick = ((newKey) => {
+        setKeys(keys.filter((key) => {
+            return !(key === newKey)
+        }))
+    })
+
+    return [handleAddClick, handleRemoveClick]
+}
+
+function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState,  categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState) {
+
+
+    const updateKeywordAfterCategory = ((isChecked, category_index) => {
+        //Update keyword state too
+        const keywords = all_categories[category_index].keywords
+        const initial_index = all_keywords.indexOf(keywords[0])
+        const end_index = initial_index + keywords.length
+        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
+            (i >= initial_index && i < end_index) ? isChecked : check
+        );
+        setKeywordCheckState(updatedKeywordCheckState);
+    })
+
+    const handleCategoryCheckbox = ((index) => {
+        const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
+            i === index ? !check : check
+        );
+        const isChecked = updatedCategoriesCheckState[index]
+        setCategoriesCheckState(updatedCategoriesCheckState)
+        updateKeywordAfterCategory(isChecked, index)
+    })
+
+    const handleKeywordCheckbox = ((index) => {
+        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
+            i === index ? !check : check
+        );
+        setKeywordCheckState(updatedKeywordCheckState);
+    })
+
+    const handleArtistCheckbox = ((index) => {
+        //Maybe I want to select a range of all_artists later, currently the query only checks for AND
+        const updatedArtistCheckState = artistCheckState.map((check, i) =>
+            i === index ? !check : false
+        );
+        setArtistCheckState(updatedArtistCheckState);
+    })
+
+    return [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox]
+
+}
+
 
 function flattenArray(array, value) {
 
