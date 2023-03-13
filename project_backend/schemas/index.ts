@@ -1,3 +1,4 @@
+import artist from "./artist";
 import breakdown from "./breakdown";
 import category from "./category";
 import inspiration from "./inspiration";
@@ -9,7 +10,8 @@ export const schemaTypes = [
     keyword,
     useKeyword,
     breakdown,
-    category
+    category,
+    artist
 ]
 
 

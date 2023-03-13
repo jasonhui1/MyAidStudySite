@@ -1,13 +1,13 @@
 // ToDO: optimise tweet/ youtube call
 //  - by caching?
 
-import React, { useState, useEffect, useMemo,useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
 import Masonry from 'react-masonry-css';
 import TwitterVideoEmbed from '../Components/TwitterVideoEmbed';
 import { inspiration_data } from '../Data/inspiration_data';
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
-import { searchInspirationQuery, getKeywordData } from '../FetchData/getdata';
+import { searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
 import { client } from '../client';
 
 const breakpointColumnsObj = {
@@ -76,7 +76,9 @@ function MyEmbed({ _id, title = '', artist, keywords, embedURL }) {
 function CheckBox({ value, onChange }) {
     return (
         <div>
-            <input type="checkbox" name='keyword' value={value} onChange={onChange} /> {value}
+            <label>
+                <input type="checkbox" name='keyword' value={value} onChange={onChange} /> {value}
+            </label>
         </div>
     )
 }
@@ -85,33 +87,22 @@ export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState('');
     const [keys, setKeys] = useState(['title'])
     const [receive_data, setReceive_data] = useState([])
-    const [checkedState, setCheckedState] = useState();
     const [test, setTest] = useState(0)
-    
-    let keywords = useRef([])
 
+    const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, keywords, categories, artists] = useInitialFetch()
     // Get inspiration data
     useEffect(() => {
         // console.log('querying')
-        const selectedKeywords = keywords.current.filter((_,i)=>checkedState[i])
-        const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords);
+        const selectedKeywords = keywords.current.filter((_, i) => keywordCheckState[i])
+        const selectedArtists = artists.current.filter((_, i) => artistCheckState[i])
+
+        const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords, selectedArtists);
 
         console.log('query', query)
         client.fetch(query).then((data) => {
             setReceive_data(data)
-            console.log('data', data)
         });
-    }, [searchTerm, keys, checkedState]);
-
-    // Get keywords data
-    useEffect(() => {
-        const query = getKeywordData();
-        client.fetch(query).then((keywordData) => {
-            const words = keywordData.map(({word})=> word)
-            keywords.current = words
-            setCheckedState(new Array(keywordData.length).fill(false))
-        });
-    }, []);
+    }, [searchTerm, keys, keywordCheckState, artistCheckState]);
 
 
     const handleAddClick = ((newKey) => {
@@ -126,12 +117,18 @@ export function Inspiration() {
         }))
     })
 
-    const handleCheckbox = ((index) => {
-        const updatedCheckedState = checkedState.map((check, i) =>
+    const handleKeywordCheckbox = ((index) => {
+        const updatedKeywordCheckState = keywordCheckState.map((check, i) =>
             i === index ? !check : check
         );
-        console.log('updatedCheckedState', updatedCheckedState)
-        setCheckedState(updatedCheckedState);
+        setKeywordCheckState(updatedKeywordCheckState);
+    })
+
+    const handleArtistCheckbox = ((index) => {
+        const updatedArtistCheckState = artistCheckState.map((check, i) =>
+            i === index
+        );
+        setArtistCheckState(updatedArtistCheckState);
     })
 
     const handleTest = (() => {
@@ -140,7 +137,7 @@ export function Inspiration() {
 
     // console.log('rending')
 
-    return(
+    return (
         <>
             {/* <button onClick={handleTest}>abc</button> */}
             <div className=' container mx-auto'>
@@ -174,10 +171,19 @@ export function Inspiration() {
                 </div>
 
                 Advance Setting
-                {/* Maybe a grid is better */}
-                <div className='flex flex-wrap gap-4 outline p-4 '>
-                    {keywords.current.map((word,i) => {
-                        return <CheckBox value={word} onChange={() =>handleCheckbox(i)}/>
+                <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
+
+                    {artists.current.map((name, i) => {
+                        return (
+                            <label>
+                                <input type="radio" name="artist_name" value={name} onChange={() => handleArtistCheckbox(i)}/> {name}
+                            </label>
+                        )
+                    })}
+                </div>
+                <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
+                    {keywords.current.map((word, i) => {
+                        return <CheckBox value={word} onChange={() => handleKeywordCheckbox(i)} />
                     })}
                 </div>
 
@@ -198,4 +204,36 @@ export function Inspiration() {
             </div>
         </>
     )
+}
+
+function useInitialFetch() {
+
+    const [keywordCheckState, setKeywordCheckState] = useState([]);
+    const [artistCheckState, setArtistCheckState] = useState([]);
+
+    let keywords = useRef([])
+    let categories = useRef([])
+    let artists = useRef([])
+
+    useEffect(() => {
+        const keywordQuery = getKeywordData();
+        client.fetch(keywordQuery).then((keywordData) => {
+            keywords.current = keywordData
+            setKeywordCheckState(new Array(keywordData.length).fill(false))
+        });
+
+        const artistQuery = getArtistData()
+        client.fetch(artistQuery).then((artistData) => {
+            artists.current = artistData
+            setArtistCheckState(new Array(artistData.length).fill(false))
+        });
+
+        const categoryQuery = getArtistData()
+        client.fetch(categoryQuery).then((categoryData) => {
+            categories.current = categoryData
+        });
+
+    }, []);
+
+    return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, keywords, categories, artists]
 }

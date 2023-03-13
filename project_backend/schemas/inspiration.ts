@@ -21,11 +21,18 @@ export default {
                                      .slice(0, 200)
               }
         },
+        // {
+        //     name: 'artist',
+        //     title: 'Artist ',
+        //     type: 'string'
+        // },
         {
             name: 'artist',
             title: 'Artist ',
-            type: 'string'
+            type: 'reference',
+            to: [{type:'artist'}]
         },
+
         // {
         //     name: 'category',
         //     title: 'Category ',
