@@ -10,12 +10,13 @@ export function getKeywordData(): string {
 
 export function getCategoryData(word: string = ''): string {
 
-    let filter = ['_type == "category"']
-    if (word === '') {
+    let filter = [`_type == "category"`]
+    if (word !== '') {
         filter.push(`word == '${word}'`)
     }
+    const combinedFilter = filter.join('&&')
 
-    const query = `[${filter.join('&&')}{
+    const query = `*[${combinedFilter}]{
          word,
         'keywords': *[_type=='keyword' && references(^._id) ].word,
     }`

@@ -2,103 +2,13 @@
 //  - by caching?
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
-// import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
-import Masonry from 'react-masonry-css';
 import { Routes, Route, useNavigate, useParams } from 'react-router-dom'
-import TwitterVideoEmbed from '../Components/TwitterVideoEmbed';
-import { inspiration_data } from '../Data/inspiration_data';
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
 import { searchQueryThroughCategory, searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
 import { client } from '../client';
-
-const breakpointColumnsObj = {
-    default: 3,
-    3000: 3,
-    2200: 3,
-    1500: 2,
-    800: 1,
-};
-
-interface EmbedUrl {
-    src: string;
-}
-
-function YoutubeEmbed({ src }: EmbedUrl): JSX.Element {
-    return (
-        <iframe
-            className='w-full aspect-video'
-            src={src}
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen>
-        </iframe>
-    )
-}
-
-
-interface EmbedProp {
-    _id: string;
-    title: string;
-    artist: string;
-    keywords: Array<{
-        word: string
-    }>
-    embedURL: string
-}
-
-// const MemoizedMyEmbed = React.memo(MyEmbed);
-function MyEmbed({ _id, title = '', artist, keywords, embedURL }: EmbedProp): JSX.Element {
-
-    let embedBlock;
-    //Turn {id, name} to only name
-    let keywordList = keywords.map(keyword => keyword.word);
-
-    if (embedURL.includes('twitter')) {
-        const postId = embedURL.split('/').pop()
-        if (postId !== undefined) {
-            embedBlock = <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
-        }
-
-    } else if (embedURL.includes('youtube')) {
-        const postId = embedURL.split('?v=').pop()?.split('&')[0]
-        if (postId !== undefined) {
-            const URL = 'https://www.youtube.com/embed/' + postId
-            embedBlock = <YoutubeEmbed key={postId} src={URL} />
-        }
-    }
-
-    return (
-        <>
-            <div className='flex flex-col  card justify-center items-center rounded-lg outline shadow-lg gap-3 mb-4 p-4'>
-                <h1>{title}</h1>
-                <h4 className=''>Keywords:
-                    <span className='font-bold'>{keywordList.join(', ')}
-
-                    </span>
-                </h4>
-                {embedBlock}
-            </div>
-        </>
-    )
-}
-
-interface CheckBoxProp {
-    value: string;
-    onChange: React.ChangeEventHandler<HTMLInputElement>;
-    check: boolean;
-
-}
-
-function CheckBox({ value, onChange, check = false }: CheckBoxProp): JSX.Element {
-
-    return (
-        <div>
-            <label>
-                <input type="checkbox" name='keyword' value={value} onChange={onChange} checked={check} /> {value}
-            </label>
-        </div>
-    )
-}
+import { InspirationData } from '../TypeScript/InspirationData';
+import MasonryLayout from '../Components/MasonryLayout';
+import CheckBox from '../Components/Checkbox';
 
 
 interface AllArtistsCheckBoxesProps {
@@ -144,7 +54,6 @@ function AllKeywordsCheckBoxes({ keywords, keywordCheckState, handleKeywordCheck
 
 export function InspirationCategory() {
     const { category } = useParams<string>();
-
     const [searchTerm, setSearchTerm] = useState<string>('');
 
     const [inspirationData, keywordCheckState, artistCheckState, setInspirationData, setKeywordCheckState, setArtistCheckState, all_keywords, all_artists] = useInitialFetch(category)
@@ -182,27 +91,14 @@ export function InspirationCategory() {
                         </div>
 
                         {true &&
-                            <Masonry className="p-4 flex animate-slide-fwd gap-4" breakpointCols={breakpointColumnsObj}>
-                                {inspirationData.map((data) => {
-                                    return <MyEmbed key={data._id} {...data} />
-                                })}
-
-                            </Masonry>}
+                            <MasonryLayout data={inspirationData} />
+                        }
 
                     </div>
                 </>
             }
         </>
     )
-}
-export interface InspirationData {
-    _id: string,
-    title: string;
-    artist: string;
-    keywords: Array<{
-        word: string
-    }>
-    embedURL: string
 }
 
 interface QueryData {
@@ -227,7 +123,6 @@ function useInitialFetch(category: string | undefined): [
 
     let keywords = useRef<string[]>([])
     let artists = useRef<string[]>([])
-    let ids = useRef<string[]>([])
 
     useEffect(() => {
         if (category !== undefined) {

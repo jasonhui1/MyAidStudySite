@@ -3,114 +3,69 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import Masonry from 'react-masonry-css';
 import TwitterVideoEmbed from '../Components/TwitterVideoEmbed';
 import { inspiration_data } from '../Data/inspiration_data';
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
 import { searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
 import { client } from '../client';
+import { InspirationCategory } from './Inspirations_category';
+import InspirationEmbed from '../Components/Embed';
+import MasonryLayout from '../Components/MasonryLayout';
+import CheckBox from '../Components/Checkbox';
 
-const breakpointColumnsObj = {
-    default: 3,
-    3000: 3,
-    2200: 3,
-    1500: 2,
-    800: 1,
-};
 
-interface EmbedUrl {
-    src: string;
+interface AllArtistsCheckBoxesProps {
+    artists: string[],
+    artistCheckState: boolean[],
+    handleArtistCheckbox: (index: number) => void
 }
 
-function YoutubeEmbed({ src }: EmbedUrl): JSX.Element {
+function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistCheckState }: AllArtistsCheckBoxesProps): JSX.Element {
     return (
-        <iframe
-            className='w-full aspect-video'
-            src={src}
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen>
-        </iframe>
-    )
-}
-
-interface CardProps {
-    className: string;
-    children: React.ReactNode
-}
-
-function Card({ className, children }: CardProps): JSX.Element {
-    const additionalClassName = (className !== undefined ? className : '')
-    const DivClassName = 'flex flex-col  card justify-center items-center rounded-lg outline shadow-lg gap-3 mb-4 p-4' + ' ' + additionalClassName
-
-    return (
-        <div className={DivClassName}>
-            {children}
+        <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
+            {artists.map((name: string, i: number) => {
+                return (
+                    <CheckBox key={i} value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
+                )
+            })}
         </div>
     )
 }
 
-interface EmbedProp {
-    _id: string;
-    title: string;
-    artist: string;
-    keywords: Array<{
-        word: string
-    }>
-    embedURL: string
+interface AllKeywordsCheckBoxesProps {
+    all_categories: CategoryData[],
+    keywordCheckState: boolean[][],
+    handleKeywordCheckbox: (i: number, j: number) => void,
+
+    categoriesCheckState: boolean[],
+    handleCategoryCheckbox: (index: number) => void
+
 }
 
-// const MemoizedMyEmbed = React.memo(MyEmbed);
-function MyEmbed({ _id, title = '', artist, keywords, embedURL }: EmbedProp): JSX.Element {
-
-    let embedBlock;
-    //Turn {id, name} to only name
-    let keywordList = keywords.map(keyword => keyword.word);
-
-    if (embedURL.includes('twitter')) {
-        const postId = embedURL.split('/').pop()
-        if (postId !== undefined) {
-            embedBlock = <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
-        }
-
-    } else if (embedURL.includes('youtube')) {
-        const postId = embedURL.split('?v=').pop()?.split('&')[0]
-        if (postId !== undefined) {
-            const URL = 'https://www.youtube.com/embed/' + postId
-            embedBlock = <YoutubeEmbed key={postId} src={URL} />
-        }
-    }
-
+function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, handleKeywordCheckbox, categoriesCheckState, handleCategoryCheckbox }: AllKeywordsCheckBoxesProps) {
     return (
-        <>
-            <Card className=''>
-                <h1>{title}</h1>
-                <h4 className=''>Keywords:
-                    <span className='font-bold'>{keywordList.join(', ')}
-
-                    </span>
-                </h4>
-                {embedBlock}
-            </Card>
-        </>
-    )
-}
-
-interface CheckBoxProp {
-    value: string;
-    onChange: React.ChangeEventHandler<HTMLInputElement>;
-    check: boolean;
-
-}
-
-function CheckBox({ value, onChange, check = false }: CheckBoxProp): JSX.Element {
-
-    return (
-        <div>
-            <label>
-                <input type="checkbox" name='keyword' value={value} onChange={onChange} checked={check} /> {value}
-            </label>
+        <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
+            {(
+                all_categories.map(({ word, keywords }: CategoryData, i: number) => {
+                    return (
+                        <>
+                            <div>
+                                <h3 className=' font-bold'>{word}</h3>
+                                <CheckBox value={word} onChange={() => handleCategoryCheckbox(i)} check={categoriesCheckState[i]} />
+                                <hr className=' bg-black' />
+                                <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
+                                    {keywords.map((keyword, j) => {
+                                        return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(i, j)} check={keywordCheckState[i][j]} />
+                                    })}
+                                </div>
+                            </div>
+                        </>
+                    )
+                }))}
         </div>
+
     )
 }
 
@@ -122,7 +77,7 @@ function CheckBox({ value, onChange, check = false }: CheckBoxProp): JSX.Element
 //     )
 // }
 
-interface InspirationData{
+interface InspirationData {
     _id: string,
     title: string;
     artist: string;
@@ -135,7 +90,7 @@ interface InspirationData{
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [keys, setKeys] = useState<string[]>(['title'])
-    const [receive_data, setReceive_data] = useState<InspirationData[]>([])
+    const [inspirationData, setInspirationData] = useState<InspirationData[]>([])
     const [test, setTest] = useState<number>(0)
 
     const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
@@ -152,8 +107,8 @@ export function Inspiration() {
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords, selectedArtists);
 
         console.log('query', query)
-        client.fetch(query).then((data:InspirationData[]) => {
-            setReceive_data(data)
+        client.fetch(query).then((data: InspirationData[]) => {
+            setInspirationData(data)
         });
     }, [searchTerm, keys, keywordCheckState, artistCheckState]);
 
@@ -200,48 +155,25 @@ export function Inspiration() {
                     {/* Handle add button */}
                     {/* TODO: - use a loop */}
                     <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
-                    {/* <button className=' btn rounded-lg' onClick={() => handleAddClick('all_categories')}> Categories </button> */}
                     <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
-                    {/* <button className=' btn rounded-lg'> Keywords </button> */}
 
                 </div>
 
                 Advance Setting
-                <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-                    {all_artists.map((name: string, i: number) => {
-                        return (
-                            <CheckBox value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
-                        )
-                    })}
-                </div>
+                <div className='flex flex-col gap-2'>
 
-                <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
-                    {(
-                        all_categories.map(({ word, keywords }:CategoryData, i:number) => {
-                            return (
-                                <>
-                                    <div>
-                                        <h3 className=' font-bold'>{word}</h3>
-                                        <CheckBox value={word} onChange={() => handleCategoryCheckbox(i)} check={categoriesCheckState[i]} />
-                                        <hr className=' bg-black' />
-                                        <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
-                                            {keywords.map((keyword, j) => {
-                                                return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(i, j)} check={keywordCheckState[i][j]} />
-                                            })}
-                                        </div>
-                                    </div>
-                                </>
-                            )
-                        }))}
+                    <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
+                    <AllKeywordsCheckBoxes all_categories={all_categories} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} categoriesCheckState={categoriesCheckState} handleCategoryCheckbox={handleCategoryCheckbox} />
+
                 </div>
 
                 {true &&
-                    <Masonry className="p-4 flex animate-slide-fwd gap-4" breakpointCols={breakpointColumnsObj}>
-                        {receive_data.map((data) => {
-                            return <MyEmbed key={data._id} {...data} />
-                        })}
+                    <MasonryLayout data={inspirationData} />
+                }
 
-                    </Masonry>}
+                < Routes >
+                    <Route path='/:category' element={<InspirationCategory />} />
+                </Routes>
             </div>
         </>
     )
@@ -252,7 +184,10 @@ interface CategoryData {
     keywords: Array<string>
 }
 
-function useInitialFetch(): Array<any> {
+function useInitialFetch():
+    [boolean[][], React.Dispatch<React.SetStateAction<boolean[][]>>, boolean[], React.Dispatch<React.SetStateAction<boolean[]>>,
+        boolean[], React.Dispatch<React.SetStateAction<boolean[]>>, string[][], CategoryData[], string[]
+    ] {
     const [keywordCheckState, setKeywordCheckState] = useState<boolean[][]>([[]]);
     const [artistCheckState, setArtistCheckState] = useState<boolean[]>([]);
     const [categoriesCheckState, setCategoriesCheckState] = useState<boolean[]>([]);
@@ -271,6 +206,7 @@ function useInitialFetch(): Array<any> {
         const categoryQuery = getCategoryData()
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
             categories.current = categoryData
+
             setCategoriesCheckState(new Array(categoryData.length).fill(false))
 
             keywords.current = categoryData.map((row) => (row['keywords']))
