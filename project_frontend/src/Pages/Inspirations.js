@@ -84,13 +84,13 @@ function CheckBox({ value, onChange, check = false }) {
     )
 }
 
-function Radio({ value, onChange }) {
-    return (
-        <label>
-            <input type="radio" name="artist_name" value={value} onChange={onChange} /> {value}
-        </label>
-    )
-}
+// function Radio({ value, onChange }) {
+//     return (
+//         <label>
+//             <input type="radio" name="artist_name" value={value} onChange={onChange} /> {value}
+//         </label>
+//     )
+// }
 
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -99,10 +99,11 @@ export function Inspiration() {
     const [test, setTest] = useState(0)
 
     const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
-    // Get inspiration data
+    // Get initial data
     const [handleAddClick, handleRemoveClick] = handleKeys(keys, setKeys)
     const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
 
+    //Update Search
     useEffect(() => {
         console.log('querying')
         const selectedKeywords = all_keywords.flat().filter((_, i) => keywordCheckState.flat()[i])
@@ -207,7 +208,6 @@ export function Inspiration() {
 }
 
 function useInitialFetch() {
-
     const [keywordCheckState, setKeywordCheckState] = useState([[]]);
     const [artistCheckState, setArtistCheckState] = useState([]);
     const [categoriesCheckState, setCategoriesCheckState] = useState([]);
@@ -217,12 +217,6 @@ function useInitialFetch() {
     let artists = useRef([])
 
     useEffect(() => {
-        // const keywordQuery = getKeywordData();
-        // client.fetch(keywordQuery).then((keywordData) => {
-        //     keywords.current = keywordData
-        //     setKeywordCheckState(new Array(keywordData.length).fill(false))
-        // });
-
         const artistQuery = getArtistData()
         client.fetch(artistQuery).then((artistData) => {
             artists.current = artistData
@@ -237,11 +231,6 @@ function useInitialFetch() {
             keywords.current = categoryData.map((row) => (row['keywords']))
             const two_d_array = new Array(categoryData.length).fill([]).map((row, i) => new Array(categoryData[i].keywords.length).fill(false))
             setKeywordCheckState(two_d_array)
-
-
-            // const flatten_array = flattenArray(categoryData, 'keywords')
-            // keywords.current = flatten_array
-            // setKeywordCheckState(new Array(flatten_array.length).fill(false))
         });
 
     }, []);
