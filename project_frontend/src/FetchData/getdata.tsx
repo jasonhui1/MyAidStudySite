@@ -1,14 +1,14 @@
-export function getBreakdownData() {
+export function getBreakdownData(): string {
     const query = `*[_type == "breakdown" && title match 'shield'][0]`
     return query
 }
 
-export function getKeywordData() {
+export function getKeywordData(): string {
     const query = `*[_type == "keyword"] {word}['word']`
     return query
 }
 
-export function getCategoryData() {
+export function getCategoryData(): string {
     const query = `*[_type == "category"] {
         word,
         'keywords': *[_type=='keyword' && references(^._id) ].word,
@@ -16,14 +16,19 @@ export function getCategoryData() {
     return query
 }
 
-export function getArtistData() {
+export function getArtistData(): string {
     const query = `*[_type == "artist"] {name} ['name']`
     return query
 }
 
 
-function arrayMapping(original_array, mapping){
-    return original_array.map((item) =>{
+interface Mapping {
+    [key: string]: string
+}
+
+
+function arrayMapping(original_array: string[], mapping: Mapping): string[] {
+    return original_array.map((item: string) => {
         if (mapping[item]) return mapping[item]
         return item
     })
@@ -32,7 +37,7 @@ function arrayMapping(original_array, mapping){
 //normalkeys = [title, artist...] related to the post
 //keywords = keywords of the post
 
-export const searchInspirationQuery = (searchTerm, normalkeys, keywords = [], artists=[]) => {
+export const searchInspirationQuery = (searchTerm: string, normalkeys: string[], keywords: string[] = [], artists: string[] = []): string => {
 
     const mapping = {
         'artist': 'artist->name'
@@ -51,7 +56,7 @@ export const searchInspirationQuery = (searchTerm, normalkeys, keywords = [], ar
     if (keywords.length > 0) {
         let filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('||')
         filterKeyword = `(${filterKeyword})`
-        
+
         filter.push(filterKeyword)
     }
 
@@ -80,7 +85,7 @@ export const searchInspirationQuery = (searchTerm, normalkeys, keywords = [], ar
     }`;
 
     // if (keywords.length === 0) {
-    return inspirationQuery 
+    return inspirationQuery
 
     // } else {
     //     //only check first keyword to avoid returning the same post
