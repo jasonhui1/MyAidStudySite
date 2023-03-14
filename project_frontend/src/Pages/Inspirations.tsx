@@ -18,7 +18,11 @@ const breakpointColumnsObj = {
     800: 1,
 };
 
-function YoutubeEmbed({ src }) {
+interface EmbedUrl {
+    src: string;
+}
+
+function YoutubeEmbed({ src }: EmbedUrl): JSX.Element {
     return (
         <iframe
             className='w-full aspect-video'
@@ -30,7 +34,12 @@ function YoutubeEmbed({ src }) {
     )
 }
 
-function Card({ className, children }) {
+interface CardProps {
+    className: string;
+    children: React.ReactNode
+}
+
+function Card({ className, children }: CardProps): JSX.Element {
     const additionalClassName = (className !== undefined ? className : '')
     const DivClassName = 'flex flex-col  card justify-center items-center rounded-lg outline shadow-lg gap-3 mb-4 p-4' + ' ' + additionalClassName
 
@@ -41,8 +50,18 @@ function Card({ className, children }) {
     )
 }
 
+interface EmbedProp {
+    _id: string;
+    title: string;
+    artist: string;
+    keywords: Array<{
+        word: string
+    }>
+    embedURL: string
+}
+
 // const MemoizedMyEmbed = React.memo(MyEmbed);
-function MyEmbed({ _id, title = '', artist, keywords, embedURL }) {
+function MyEmbed({ _id, title = '', artist, keywords, embedURL }: EmbedProp): JSX.Element {
 
     let embedBlock;
     //Turn {id, name} to only name
@@ -50,12 +69,16 @@ function MyEmbed({ _id, title = '', artist, keywords, embedURL }) {
 
     if (embedURL.includes('twitter')) {
         const postId = embedURL.split('/').pop()
-        embedBlock = <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
+        if (postId !== undefined) {
+            embedBlock = <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
+        }
 
     } else if (embedURL.includes('youtube')) {
-        const postId = embedURL.split('?v=').pop().split('&')[0]
-        const URL = 'https://www.youtube.com/embed/' + postId
-        embedBlock = <YoutubeEmbed key={postId} src={URL} />
+        const postId = embedURL.split('?v=').pop()?.split('&')[0]
+        if (postId !== undefined) {
+            const URL = 'https://www.youtube.com/embed/' + postId
+            embedBlock = <YoutubeEmbed key={postId} src={URL} />
+        }
     }
 
     return (
@@ -73,7 +96,14 @@ function MyEmbed({ _id, title = '', artist, keywords, embedURL }) {
     )
 }
 
-function CheckBox({ value, onChange, check = false }) {
+interface CheckBoxProp {
+    value: string;
+    onChange: React.ChangeEventHandler<HTMLInputElement>;
+    check: boolean;
+
+}
+
+function CheckBox({ value, onChange, check = false }: CheckBoxProp): JSX.Element {
 
     return (
         <div>
@@ -92,27 +122,37 @@ function CheckBox({ value, onChange, check = false }) {
 //     )
 // }
 
+interface InspirationData{
+    _id: string,
+    title: string;
+    artist: string;
+    keywords: Array<{
+        word: string
+    }>
+    embedURL: string
+}
+
 export function Inspiration() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [keys, setKeys] = useState(['title'])
-    const [receive_data, setReceive_data] = useState([])
-    const [test, setTest] = useState(0)
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [keys, setKeys] = useState<string[]>(['title'])
+    const [receive_data, setReceive_data] = useState<InspirationData[]>([])
+    const [test, setTest] = useState<number>(0)
 
     const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
     // Get initial data
     const [handleAddClick, handleRemoveClick] = handleKeys(keys, setKeys)
-    const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
+    const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes(keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
 
     //Update Search
     useEffect(() => {
         console.log('querying')
-        const selectedKeywords = all_keywords.flat().filter((_, i) => keywordCheckState.flat()[i])
-        const selectedArtists = all_artists.filter((_, i) => artistCheckState[i])
+        const selectedKeywords = all_keywords.flat().filter((_: any, i: number) => keywordCheckState.flat()[i])
+        const selectedArtists = all_artists.filter((_: any, i: number) => artistCheckState[i])
 
         const query = searchInspirationQuery(searchTerm.toLowerCase(), keys, selectedKeywords, selectedArtists);
 
         console.log('query', query)
-        client.fetch(query).then((data) => {
+        client.fetch(query).then((data:InspirationData[]) => {
             setReceive_data(data)
         });
     }, [searchTerm, keys, keywordCheckState, artistCheckState]);
@@ -120,7 +160,7 @@ export function Inspiration() {
 
     // Check category if all sub keywords are checked
     useEffect(() => {
-        const updatedCategoriesCheckState = keywordCheckState.map((array, i) => (array.every((isChecked) => isChecked)))
+        const updatedCategoriesCheckState = keywordCheckState.map((array: boolean[]) => (array.every((isChecked) => isChecked)))
         setCategoriesCheckState(updatedCategoriesCheckState)
 
     }, [keywordCheckState]);
@@ -135,7 +175,7 @@ export function Inspiration() {
 
     return (
         <>
-            {/* <button onClick={handleTest}>abc</button> */}
+            {/* <button className='btn' onClick={handleTest}>abc</button> */}
             <div className=' container mx-auto'>
                 <div className="mt-4 mb-2 flex gap-2 items-center w-full px-2 rounded-md bg-white border-none outline focus-within:shadow-sm">
                     <IoMdSearch fontSize={21} className="ml-1" />
@@ -168,7 +208,7 @@ export function Inspiration() {
 
                 Advance Setting
                 <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-                    {all_artists.map((name, i) => {
+                    {all_artists.map((name: string, i: number) => {
                         return (
                             <CheckBox value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
                         )
@@ -177,7 +217,7 @@ export function Inspiration() {
 
                 <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
                     {(
-                        all_categories.map(({ word, keywords }, i) => {
+                        all_categories.map(({ word, keywords }:CategoryData, i:number) => {
                             return (
                                 <>
                                     <div>
@@ -207,24 +247,29 @@ export function Inspiration() {
     )
 }
 
-function useInitialFetch() {
-    const [keywordCheckState, setKeywordCheckState] = useState([[]]);
-    const [artistCheckState, setArtistCheckState] = useState([]);
-    const [categoriesCheckState, setCategoriesCheckState] = useState([]);
+interface CategoryData {
+    word: string
+    keywords: Array<string>
+}
 
-    let keywords = useRef([])
-    let categories = useRef([]);
-    let artists = useRef([])
+function useInitialFetch(): Array<any> {
+    const [keywordCheckState, setKeywordCheckState] = useState<boolean[][]>([[]]);
+    const [artistCheckState, setArtistCheckState] = useState<boolean[]>([]);
+    const [categoriesCheckState, setCategoriesCheckState] = useState<boolean[]>([]);
+
+    let keywords = useRef<string[][]>([])
+    let categories = useRef<CategoryData[]>([]);
+    let artists = useRef<string[]>([])
 
     useEffect(() => {
         const artistQuery = getArtistData()
-        client.fetch(artistQuery).then((artistData) => {
+        client.fetch(artistQuery).then((artistData: string[]) => {
             artists.current = artistData
             setArtistCheckState(new Array(artistData.length).fill(false))
         });
 
         const categoryQuery = getCategoryData()
-        client.fetch(categoryQuery).then((categoryData) => {
+        client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
             categories.current = categoryData
             setCategoriesCheckState(new Array(categoryData.length).fill(false))
 
@@ -238,14 +283,15 @@ function useInitialFetch() {
     return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, keywords.current, categories.current, artists.current]
 }
 
-function handleKeys(keys, setKeys,) {
-    const handleAddClick = ((newKey) => {
+function handleKeys(keys: string[], setKeys: React.Dispatch<React.SetStateAction<string[]>>) {
+
+    const handleAddClick = ((newKey: string) => {
         if (!keys.includes(newKey)) {
             setKeys([...keys, newKey])
         }
     })
 
-    const handleRemoveClick = ((newKey) => {
+    const handleRemoveClick = ((newKey: string) => {
         setKeys(keys.filter((key) => {
             return !(key === newKey)
         }))
@@ -254,9 +300,16 @@ function handleKeys(keys, setKeys,) {
     return [handleAddClick, handleRemoveClick]
 }
 
-function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState) {
+function handleCheckboxes(
+    keywordCheckState: boolean[][],
+    setKeywordCheckState: React.Dispatch<React.SetStateAction<boolean[][]>>,
+    categoriesCheckState: boolean[],
+    setCategoriesCheckState: React.Dispatch<React.SetStateAction<boolean[]>>,
+    artistCheckState: boolean[],
+    setArtistCheckState: React.Dispatch<React.SetStateAction<boolean[]>>
+): [(index: number) => void, (i: number, j: number) => void, (index: number) => void] {
 
-    const handleCategoryCheckbox = ((index) => {
+    const handleCategoryCheckbox = ((index: number): void => {
         const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
             i === index ? !check : check
         );
@@ -273,7 +326,7 @@ function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKe
 
     })
 
-    const handleKeywordCheckbox = ((i, j) => {
+    const handleKeywordCheckbox = ((i: number, j: number): void => {
         const updatedKeywordCheckState = keywordCheckState.map((row, current_i) => {
             if (!(current_i === i)) return row
             return row.map((cell, current_j) => (j === current_j ? !cell : cell))
@@ -282,7 +335,7 @@ function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKe
         setKeywordCheckState(updatedKeywordCheckState);
     })
 
-    const handleArtistCheckbox = ((index) => {
+    const handleArtistCheckbox = ((index: number): void => {
         //Maybe I want to select a range of all_artists later, currently the query only checks for AND
         const updatedArtistCheckState = artistCheckState.map((check, i) =>
             i === index ? !check : check
@@ -295,15 +348,15 @@ function handleCheckboxes(all_categories, all_keywords, keywordCheckState, setKe
 }
 
 
-function flattenArray(array, value) {
+// function flattenArray(array, value) {
 
-    const flatten_array = array.map((row, i) => {
-        // row[value].map((cell, j) => {
-        //     console.log(cell)
-        //     return cell
-        // })
-        return row[value]
-    })
+//     const flatten_array = array.map((row, i) => {
+//         // row[value].map((cell, j) => {
+//         //     console.log(cell)
+//         //     return cell
+//         // })
+//         return row[value]
+//     })
 
-    return flatten_array.flat()
-}
+//     return flatten_array.flat()
+// }

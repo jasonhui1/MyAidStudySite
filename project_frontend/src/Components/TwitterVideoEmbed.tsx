@@ -6,7 +6,30 @@ import React, {useRef, useState,useEffect} from 'react';
 const methodName = 'createVideo';
 const twitterWidgetJs = 'https://platform.twitter.com/widgets.js'
 
-const TwitterVideoEmbed = (props) => {
+declare global {
+  interface Window {
+    twttr: any;
+  }
+}
+
+export interface TwitterVideoEmbedProps {
+  /**
+   * Id of video tweet.
+   */
+  id: string;
+  /**
+   * Placeholder while tweet is loading
+   */
+  placeholder?: string | React.ReactNode;
+  /**
+   * Function to execute after load, return html element
+   */
+  onLoad?: (element: any) => void;
+  className?: string;
+}
+
+
+const TwitterVideoEmbed = (props: TwitterVideoEmbedProps):any => {
   const ref = useRef(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +41,7 @@ const TwitterVideoEmbed = (props) => {
 
 
         window.twttr.widgets[methodName](props.id, ref?.current).then(
-          (element) => {
+          (element: any) => {
             setLoading(false);
             if (props.onLoad) {
               props.onLoad(element);
