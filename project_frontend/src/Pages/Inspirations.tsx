@@ -4,16 +4,13 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import Masonry from 'react-masonry-css';
-import TwitterVideoEmbed from '../Components/TwitterVideoEmbed';
-import { inspiration_data } from '../Data/inspiration_data';
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
 import { searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
 import { client } from '../client';
 import { InspirationCategory } from './Inspirations_category';
-import InspirationEmbed from '../Components/Embed';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
+import { InspirationData } from '../TypeScript/InspirationData';
 
 
 interface AllArtistsCheckBoxesProps {
@@ -76,16 +73,6 @@ function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, handleKeywor
 //         </label>
 //     )
 // }
-
-interface InspirationData {
-    _id: string,
-    title: string;
-    artist: string;
-    keywords: Array<{
-        word: string
-    }>
-    embedURL: string
-}
 
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');

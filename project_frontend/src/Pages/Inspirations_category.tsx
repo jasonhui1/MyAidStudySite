@@ -106,7 +106,7 @@ interface QueryData {
     all_keywords: string[]
 }
 
-function useInitialFetch(category: string | undefined): [
+function useInitialFetch(category: string | undefined, keywordInitialFill:boolean = false): [
     InspirationData[],
     boolean[],
     boolean[],
@@ -130,7 +130,7 @@ function useInitialFetch(category: string | undefined): [
             client.fetch(query).then(({ inspirations, all_keywords }: QueryData) => {
                 setInspirationData(inspirations)
                 keywords.current = all_keywords
-                setKeywordCheckState(new Array(all_keywords.length).fill(false))
+                setKeywordCheckState(new Array(all_keywords.length).fill(keywordInitialFill))
             });
         } else {
             console.log('category not found')
