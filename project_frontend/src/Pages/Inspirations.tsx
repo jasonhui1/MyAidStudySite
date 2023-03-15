@@ -3,14 +3,15 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, Link } from 'react-router-dom'
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
 import { searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
 import { client } from '../client';
 import { InspirationCategory } from './Inspirations_category';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
-import { InspirationData } from '../TypeScript/InspirationData';
+import { InspirationData, CategoryData } from '../TypeScript/InspirationData';
+import Sidebar from '../Components/Sidebar';
 
 
 interface AllArtistsCheckBoxesProps {
@@ -118,58 +119,59 @@ export function Inspiration() {
     return (
         <>
             {/* <button className='btn' onClick={handleTest}>abc</button> */}
-            <div className=' container mx-auto'>
-                <div className="mt-4 mb-2 flex gap-2 items-center w-full px-2 rounded-md bg-white border-none outline focus-within:shadow-sm">
-                    <IoMdSearch fontSize={21} className="ml-1" />
+            <div className=''>
+                <div className='flex gap-5'>
 
-                    {/* Searching keys buttons */}
-                    {/* TODO use icon x */}
-                    {keys.map((key,) =>
-                        (<button className=' btn rounded-lg btn-outline my-2 ' onClick={() => handleRemoveClick(key)}> X {key}</button>)
-                    )}
+                    <Sidebar all_categories={all_categories}/>
+                    <div className='mt-4 container mx-auto'>
+                        <div className="flex gap-2 items-center rounded-md bg-white border-none outline focus-within:shadow-sm">
+                            <IoMdSearch fontSize={21} className="ml-1" />
 
-                    {/* Search bar */}
-                    <input
-                        type="text"
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Simulation"
-                        value={searchTerm}
-                        className="p-2 w-full bg-white outline-none"
-                    />
+                            {/* Searching keys buttons */}
+                            {/* TODO use icon x */}
+                            {keys.map((key,) =>
+                                (<button className=' btn rounded-lg btn-outline my-2 ' onClick={() => handleRemoveClick(key)}> X {key}</button>)
+                            )}
+
+                            {/* Search bar */}
+                            <input
+                                type="text"
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Simulation"
+                                value={searchTerm}
+                                className="p-2 w-full bg-white outline-none"
+                            />
+                        </div>
+
+                        <div className='flex gap-2 mb-2'>
+                            {/* Handle add button */}
+                            {/* TODO: - use a loop */}
+                            <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
+                            <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
+
+                        </div>
+
+                        Advance Setting
+                        <div className='flex flex-col gap-2'>
+
+                            <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
+                            <AllKeywordsCheckBoxes all_categories={all_categories} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} categoriesCheckState={categoriesCheckState} handleCategoryCheckbox={handleCategoryCheckbox} />
+
+                        </div>
+
+                        {true &&
+                            <MasonryLayout data={inspirationData} />
+                        }
+
+                    </div>
+
                 </div>
-
-                <div className='flex gap-2 mb-2'>
-                    {/* Handle add button */}
-                    {/* TODO: - use a loop */}
-                    <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
-                    <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
-
-                </div>
-
-                Advance Setting
-                <div className='flex flex-col gap-2'>
-
-                    <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
-                    <AllKeywordsCheckBoxes all_categories={all_categories} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} categoriesCheckState={categoriesCheckState} handleCategoryCheckbox={handleCategoryCheckbox} />
-
-                </div>
-
-                {true &&
-                    <MasonryLayout data={inspirationData} />
-                }
-
-                < Routes >
-                    <Route path='/:category' element={<InspirationCategory />} />
-                </Routes>
             </div>
         </>
     )
 }
 
-interface CategoryData {
-    word: string
-    keywords: Array<string>
-}
+
 
 function useInitialFetch():
     [boolean[][], React.Dispatch<React.SetStateAction<boolean[][]>>, boolean[], React.Dispatch<React.SetStateAction<boolean[]>>,

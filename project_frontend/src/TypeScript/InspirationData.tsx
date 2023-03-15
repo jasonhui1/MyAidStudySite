@@ -7,3 +7,9 @@ export interface InspirationData {
     }>
     embedURL: string
 }
+
+
+export interface CategoryData {
+    word: string
+    keywords: Array<string>
+}

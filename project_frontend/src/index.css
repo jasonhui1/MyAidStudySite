@@ -56,7 +56,7 @@
         /* width: 96%;                */
         /* background-color:#FFFF00; */
         height: 1px;
-      }
+    }
 }
 
 @tailwind components;
@@ -64,6 +64,9 @@
 
 body {
     font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -73,7 +76,8 @@ body {
 
 .portableText>p:empty:before {
     /* Make <p> with no content becomes a line break */
-    content: "\00a0"; /*00a0 stands for non-breaking space, can be anything actually? (just not '')*/
+    content: "\00a0";
+    /*00a0 stands for non-breaking space, can be anything actually? (just not '')*/
     white-space: pre;
 }
 
