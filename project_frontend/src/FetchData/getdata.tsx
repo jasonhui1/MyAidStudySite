@@ -32,7 +32,13 @@ export function getAllArtistData(): string {
 
 
 export interface CategoryRelatedData {
+    /*
+        All artist, will appear multiple times if have more data
+    */
     all_artists:string[],
+    /*
+        All keywords, will appear multiple times if have more data
+    */
     all_keywords:string[]
 }
 //Get all keywords and artist related to that category
@@ -48,23 +54,23 @@ export function getCategoryRelatedData(category: string) {
       }[0] 
       {
         'u_id': array::unique(keywords[].inspiration[]._id),
-        'all_keywords': keywords[].keyword
-        
       }
       {
         'inspirations':*[_type=='inspiration'&&^.u_id match _id] {
           'artist': artist->{name}.name,
+          'keywords': keywords[]->{word}.word
         } , 
-        all_keywords
       }
       {
-        'all_artists': array::unique(inspirations[].artist),
-        all_keywords
-      }`
+        'all_artists' :inspirations[].artist,
+        'all_keywords':inspirations[].keywords[]
+      }
+      `
 
     return query
-
 }
+
+
 
 export interface QueryData {
     inspirations: InspirationData[],

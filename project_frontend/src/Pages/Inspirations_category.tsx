@@ -23,7 +23,7 @@ import Search from '../Components/Search';
 
 
 interface AllArtistsCheckBoxesProps {
-    artists: string[],
+    artists: ArtistData[],
     artistCheckState: boolean[],
     handleArtistCheckbox: (index: number) => void
 }
@@ -31,9 +31,9 @@ interface AllArtistsCheckBoxesProps {
 export function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistCheckState }: AllArtistsCheckBoxesProps): JSX.Element {
     return (
         <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-            {artists.map((name: string, i: number) => {
+            {artists.map(({name, count}: ArtistData, i: number) => {
                 return (
-                    <CheckBox key={i} value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
+                    <CheckBox key={i} value={name + ' ' + count} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
                 )
             })}
         </div>
@@ -41,7 +41,7 @@ export function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistChec
 }
 
 interface AllKeywordsCheckBoxesProps {
-    keywords: string[],
+    keywords: KeywordData[],
     keywordCheckState: boolean[],
     handleKeywordCheckbox: (index: number) => void
 }
@@ -51,9 +51,9 @@ function AllKeywordsCheckBoxes({ keywords, keywordCheckState, handleKeywordCheck
         <>
             {keywords.length > 0 ?
                 <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-                    {keywords.map((word: string, i: number) => {
+                    {keywords.map(({word, count}: KeywordData, i: number) => {
                         return (
-                            <CheckBox key={i} value={word} onChange={() => handleKeywordCheckbox(i)} check={keywordCheckState[i]} />
+                            <CheckBox key={i} value={word +' ' + count} onChange={() => handleKeywordCheckbox(i)} check={keywordCheckState[i]} />
                         )
                     })}
                 </div>
@@ -62,8 +62,6 @@ function AllKeywordsCheckBoxes({ keywords, keywordCheckState, handleKeywordCheck
 
     )
 }
-
-
 
 export function InspirationCategory() {
     const { category } = useParams<string>();
@@ -75,15 +73,17 @@ export function InspirationCategory() {
 
 
     let [all_keywords, all_categories, all_artists] = useInitialFetch(category, setInspirationData, setKeywordCheckState, setArtistCheckState)
+    const all_artists_name = all_artists.map(({name}:ArtistData) => name)
+    const all_keywords_word = all_keywords.map(({word}:KeywordData) => word)
+    
     let [handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxesSetup(keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState)
-
 
 
     //Update Search
     useEffect(() => {
         console.log('querying')
-        const selectedKeywords = all_keywords.filter((_: any, i: number) => keywordCheckState[i])
-        const selectedArtists = all_artists.filter((_: any, i: number) => artistCheckState[i])
+        const selectedKeywords = all_keywords_word.filter((_: any, i: number) => keywordCheckState[i])
+        const selectedArtists = all_artists_name.filter((_: any, i: number) => artistCheckState[i])
 
         if (category !== undefined) {
             const query = searchQueryThroughCategory(category, searchTerm, selectedKeywords, selectedArtists);
@@ -128,6 +128,15 @@ export function InspirationCategory() {
     )
 }
 
+interface ArtistData{
+    name: string,
+    count: number,
+}
+
+interface KeywordData{
+    word: string,
+    count: number,
+}
 
 
 function useInitialFetch(category: string | undefined,
@@ -137,35 +146,49 @@ function useInitialFetch(category: string | undefined,
     keywordInitialFill: boolean = false,
 ):
     [
-        string[],
+        KeywordData[],
         CategoryData[],
-        string[],
+        ArtistData[],
     ] {
 
-    let keywords = useRef<string[]>([])
+    let keywords = useRef<KeywordData[]>([])
     let categories = useRef<CategoryData[]>([])
-    let artists = useRef<string[]>([])
+    let artists = useRef<ArtistData[]>([])
 
     useEffect(() => {
         if (category !== undefined) {
+
+            // Get all inspiration of the same category
             const query = searchQueryThroughCategory(category)
             client.fetch(query).then(({ inspirations }: QueryData) => {
                 setInspirationData(inspirations)
             });
 
+            //Get all keywords/ artists related to this category
             const categoryRelatedDataQuery = getCategoryRelatedData(category)
             client.fetch(categoryRelatedDataQuery).then(({all_artists, all_keywords}:CategoryRelatedData) => {
-                artists.current = all_artists
-                setArtistCheckState(new Array(all_artists.length).fill(false))
-                keywords.current = all_keywords
-                setKeywordCheckState(new Array(all_keywords.length).fill(keywordInitialFill))
+
+                const sortedArtistArray = CountAndSortArray(all_artists)
+                const artistObjectArray:ArtistData[] = sortedArtistArray.map(([name, count]) => {
+                    return { name, count };
+                  });
+
+                artists.current = artistObjectArray
+                setArtistCheckState(new Array(artistObjectArray.length).fill(false))
+
+
+                const sortedKeywordArray = CountAndSortArray(all_keywords)
+                const keywordObjectArray:KeywordData[] = sortedKeywordArray.map(([word, count]) => {
+                    return { word, count };
+                  });
+
+                keywords.current = keywordObjectArray
+                setKeywordCheckState(new Array(keywordObjectArray.length).fill(keywordInitialFill))
             });
 
         } else {
             console.log('category not found')
         }
-
-
 
         const categoryQuery = getAllCategoryData()
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
@@ -206,3 +229,18 @@ function handleCheckboxesSetup(
 }
 
 
+interface ArrayItemCount{
+    [key:string]: number,
+}
+
+function CountAndSortArray(array:string[]){
+    const artistCount = array.reduce((acc:ArrayItemCount, curr:string) => {
+        //If exist, +1, else set to 1
+        acc[curr] = acc[curr] ? acc[curr] + 1 : 1;
+        return acc;
+      }, {});
+
+    const sortedArray = Object.entries(artistCount).sort((a, b) => b[1] - a[1])
+    return sortedArray
+
+}
