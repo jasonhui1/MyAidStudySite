@@ -1,14 +1,15 @@
+import { InspirationData } from '../TypeScript/InspirationData';
 export function getBreakdownData(): string {
     const query = `*[_type == "breakdown" && title match 'shield'][0]`
     return query
 }
 
-export function getKeywordData(): string {
+export function getAllKeywordData(): string {
     const query = `*[_type == "keyword"] {word}['word']`
     return query
 }
 
-export function getCategoryData(word: string = ''): string {
+export function getAllCategoryData(word: string = ''): string {
 
     let filter = [`_type == "category"`]
     if (word !== '') {
@@ -23,19 +24,67 @@ export function getCategoryData(word: string = ''): string {
     return query
 }
 
-export function getArtistData(): string {
+export function getAllArtistData(): string {
     const query = `*[_type == "artist"] {name} ['name']`
     return query
 }
 
 
+
+export interface CategoryRelatedData {
+    all_artists:string[],
+    all_keywords:string[]
+}
+//Get all keywords and artist related to that category
+export function getCategoryRelatedData(category: string) {
+
+    const query = `*[_type=="category" && word match '${category}'] {
+  
+        'keywords': *[_type=='keyword' && references(^._id)]{
+          'inspiration' : *[_type=='inspiration' && references(^._id)]{_id},
+          'keyword': word
+        },
+        
+      }[0] 
+      {
+        'u_id': array::unique(keywords[].inspiration[]._id),
+        'all_keywords': keywords[].keyword
+        
+      }
+      {
+        'inspirations':*[_type=='inspiration'&&^.u_id match _id] {
+          'artist': artist->{name}.name,
+        } , 
+        all_keywords
+      }
+      {
+        'all_artists': array::unique(inspirations[].artist),
+        all_keywords
+      }`
+
+    return query
+
+}
+
+export interface QueryData {
+    inspirations: InspirationData[],
+}
+
 export function searchQueryThroughCategory(
     category: string,
+    searchTerm: string = '',
     keywords: string[] = [],
     artists: string[] = []): string {
 
+    //Also search title and artists
+    let normalKeys = ['title', 'artist']
+    normalKeys = arrayMapping(normalKeys, mapping)
+
+    //Split word betweem search string
+    let searchArray = searchTerm.split(' ').filter(i => i)
+
+    //Combined query filter
     let filter = []
-    //initial
     filter.push(`_type=='inspiration'`)
     filter.push(`^.u_id match _id`)
 
@@ -45,6 +94,11 @@ export function searchQueryThroughCategory(
 
         filter.push(filterKeyword)
     }
+    if (searchArray.length > 0) {
+        let filterSearch = searchArray?.map(item => `([${normalKeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
+        filterSearch = `(${filterSearch})`
+        filter.push(filterSearch)
+    }
 
     if (artists.length > 0) {
         let filterArtist = artists.map(name => `artist->name match '${name}'`).join('||')
@@ -53,6 +107,7 @@ export function searchQueryThroughCategory(
     }
 
     const combinedFilters = filter.join('&&')
+
 
     const query = `*[_type=="category" && word match '${category}'] {
   
@@ -75,7 +130,6 @@ export function searchQueryThroughCategory(
           embedURL,
           keywords[]->{_id, word}
         } , 
-        all_keywords
     }`
     return query
 }
@@ -123,11 +177,13 @@ export function searchQueryThroughCategory(
 //normalkeys = [title, artist...] related to the post
 //keywords = keywords of the post
 
+const mapping = {
+    'artist': 'artist->name'
+}
+
+
 export const searchInspirationQuery = (searchTerm: string, normalkeys: string[], keywords: string[] = [], artists: string[] = [], category: string = ''): string => {
 
-    const mapping = {
-        'artist': 'artist->name'
-    }
 
     normalkeys = arrayMapping(normalkeys, mapping)
 

@@ -5,13 +5,14 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom'
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
-import { searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
+import { searchInspirationQuery, getAllKeywordData, getAllCategoryData, getAllArtistData } from '../FetchData/getdata';
 import { client } from '../client';
 import { InspirationCategory } from './Inspirations_category';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
 import { InspirationData, CategoryData } from '../TypeScript/InspirationData';
 import Sidebar from '../Components/Sidebar';
+import Search from '../Components/Search';
 
 
 interface AllArtistsCheckBoxesProps {
@@ -75,6 +76,7 @@ function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, handleKeywor
 //     )
 // }
 
+
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [keys, setKeys] = useState<string[]>(['title'])
@@ -122,26 +124,9 @@ export function Inspiration() {
             <div className=''>
                 <div className='flex gap-5'>
 
-                    <Sidebar all_categories={all_categories}/>
+                    <Sidebar all_categories={all_categories} />
                     <div className='mt-4 container mx-auto'>
-                        <div className="flex gap-2 items-center rounded-md bg-white border-none outline focus-within:shadow-sm">
-                            <IoMdSearch fontSize={21} className="ml-1" />
-
-                            {/* Searching keys buttons */}
-                            {/* TODO use icon x */}
-                            {keys.map((key,) =>
-                                (<button className=' btn rounded-lg btn-outline my-2 ' onClick={() => handleRemoveClick(key)}> X {key}</button>)
-                            )}
-
-                            {/* Search bar */}
-                            <input
-                                type="text"
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Simulation"
-                                value={searchTerm}
-                                className="p-2 w-full bg-white outline-none"
-                            />
-                        </div>
+                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
 
                         <div className='flex gap-2 mb-2'>
                             {/* Handle add button */}
@@ -186,13 +171,13 @@ function useInitialFetch():
     let artists = useRef<string[]>([])
 
     useEffect(() => {
-        const artistQuery = getArtistData()
+        const artistQuery = getAllArtistData()
         client.fetch(artistQuery).then((artistData: string[]) => {
             artists.current = artistData
             setArtistCheckState(new Array(artistData.length).fill(false))
         });
 
-        const categoryQuery = getCategoryData()
+        const categoryQuery = getAllCategoryData()
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
             categories.current = categoryData
 

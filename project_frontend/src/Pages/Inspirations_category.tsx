@@ -4,12 +4,22 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
-import { searchQueryThroughCategory, searchInspirationQuery, getKeywordData, getCategoryData, getArtistData } from '../FetchData/getdata';
+import {
+    searchQueryThroughCategory,
+    getCategoryRelatedData,
+    searchInspirationQuery,
+    getAllKeywordData,
+    getAllCategoryData,
+    getAllArtistData,
+    QueryData,
+    CategoryRelatedData
+} from '../FetchData/getdata';
 import { client } from '../client';
-import { CategoryData, InspirationData } from '../TypeScript/InspirationData';
+import { CategoryData, InspirationData,  } from '../TypeScript/InspirationData';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
 import Sidebar from '../Components/Sidebar';
+import Search from '../Components/Search';
 
 
 interface AllArtistsCheckBoxesProps {
@@ -76,7 +86,7 @@ export function InspirationCategory() {
         const selectedArtists = all_artists.filter((_: any, i: number) => artistCheckState[i])
 
         if (category !== undefined) {
-            const query = searchQueryThroughCategory(category, selectedKeywords, selectedArtists);
+            const query = searchQueryThroughCategory(category, searchTerm, selectedKeywords, selectedArtists);
 
             console.log('query', query)
             client.fetch(query).then(({ inspirations }: QueryData) => {
@@ -95,7 +105,8 @@ export function InspirationCategory() {
                         <Sidebar all_categories={all_categories} />
                         <div className=' container mx-auto'>
                             <h1 className='text-center capitalize'>{category}</h1>
-                            <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance setting</button>
+                            <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+                            <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance search</button>
 
                             {openAdvSetting &&
                                 <div className='flex flex-col gap-2 my-2'>
@@ -117,10 +128,7 @@ export function InspirationCategory() {
     )
 }
 
-interface QueryData {
-    inspirations: InspirationData[],
-    all_keywords: string[]
-}
+
 
 function useInitialFetch(category: string | undefined,
     setInspirationData: React.Dispatch<React.SetStateAction<InspirationData[]>>,
@@ -141,22 +149,25 @@ function useInitialFetch(category: string | undefined,
     useEffect(() => {
         if (category !== undefined) {
             const query = searchQueryThroughCategory(category)
-            client.fetch(query).then(({ inspirations, all_keywords }: QueryData) => {
+            client.fetch(query).then(({ inspirations }: QueryData) => {
                 setInspirationData(inspirations)
+            });
+
+            const categoryRelatedDataQuery = getCategoryRelatedData(category)
+            client.fetch(categoryRelatedDataQuery).then(({all_artists, all_keywords}:CategoryRelatedData) => {
+                artists.current = all_artists
+                setArtistCheckState(new Array(all_artists.length).fill(false))
                 keywords.current = all_keywords
                 setKeywordCheckState(new Array(all_keywords.length).fill(keywordInitialFill))
             });
+
         } else {
             console.log('category not found')
         }
 
-        const artistQuery = getArtistData()
-        client.fetch(artistQuery).then((artistData: string[]) => {
-            artists.current = artistData
-            setArtistCheckState(new Array(artistData.length).fill(false))
-        });
 
-        const categoryQuery = getCategoryData()
+
+        const categoryQuery = getAllCategoryData()
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
             categories.current = categoryData
         });
@@ -165,6 +176,7 @@ function useInitialFetch(category: string | undefined,
 
     return [keywords.current, categories.current, artists.current]
 }
+
 
 function handleCheckboxesSetup(
     keywordCheckState: boolean[],
