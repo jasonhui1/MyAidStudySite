@@ -53,16 +53,21 @@ function AllKeywordsCheckBoxes({ keywords, keywordCheckState, handleKeywordCheck
     )
 }
 
+
+
 export function InspirationCategory() {
     const { category } = useParams<string>();
-    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [inspirationData, setInspirationData] = useState<InspirationData[]>([])
     const [keywordCheckState, setKeywordCheckState] = useState<boolean[]>([]);
     const [artistCheckState, setArtistCheckState] = useState<boolean[]>([]);
+    const [openAdvSetting, setOpenAdvSetting] = useState(false)
 
 
     let [all_keywords, all_categories, all_artists] = useInitialFetch(category, setInspirationData, setKeywordCheckState, setArtistCheckState)
     let [handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxesSetup(keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState)
+
+
 
     //Update Search
     useEffect(() => {
@@ -90,13 +95,15 @@ export function InspirationCategory() {
                         <Sidebar all_categories={all_categories} />
                         <div className=' container mx-auto'>
                             <h1 className='text-center capitalize'>{category}</h1>
+                            <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance setting</button>
 
-                            <div className='flex flex-col gap-2'>
+                            {openAdvSetting &&
+                                <div className='flex flex-col gap-2 my-2'>
+                                    <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
+                                    <AllKeywordsCheckBoxes keywords={all_keywords} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} />
 
-                                <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
-                                <AllKeywordsCheckBoxes keywords={all_keywords} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} />
-
-                            </div>
+                                </div>
+                            }
 
                             {true &&
                                 <MasonryLayout data={inspirationData} />
