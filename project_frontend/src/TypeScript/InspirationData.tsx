@@ -13,3 +13,13 @@ export interface CategoryData {
     word: string
     keywords: Array<string>
 }
+
+export interface ArtistData{
+    name: string,
+    count: number,
+}
+
+export interface KeywordData{
+    word: string,
+    count: number,
+}

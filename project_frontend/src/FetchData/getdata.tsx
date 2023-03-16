@@ -1,17 +1,26 @@
 import { InspirationData } from '../TypeScript/InspirationData';
-export function getBreakdownData(page:string): string {
-    const query = `*[_type == "breakdown" && title match '*${page}*'][0]`
+export function getBreakdownData(page: string = ''): string {
+    let query;
+    if (page !== '') {
+        query = `*[_type == "breakdown" && title match '*${page}*'][0]`
+    } else {
+        query = `*[_type == "breakdown"] 
+        {
+                    _id, title, description, image, content,
+                    'keywords':keywords[]->word
+        }`
+    }
     return query
 }
 
-export function getBreakdownDataFromID(id:string): string {
-    const query = `*[_type == "breakdown" && _id == '${id}'][0]`
+export function getBreakdownDataFromID(id: string): string {
+    const query = `* [_type == "breakdown" && _id == '${id}'][0]`
     return query
 }
 
 
 export function getAllKeywordData(): string {
-    const query = `*[_type == "keyword"] {word}['word']`
+    const query = `* [_type == "keyword"] { word } ['word']`
     return query
 }
 
@@ -23,15 +32,15 @@ export function getAllCategoryData(word: string = ''): string {
     }
     const combinedFilter = filter.join('&&')
 
-    const query = `*[${combinedFilter}]{
-         word,
-        'keywords': *[_type=='keyword' && references(^._id) ].word,
-    }`
+    const query = `* [${combinedFilter}]{
+            word,
+                'keywords': * [_type == 'keyword' && references(^._id)].word,
+    } `
     return query
 }
 
 export function getAllArtistData(): string {
-    const query = `*[_type == "artist"] {name} ['name']`
+    const query = `* [_type == "artist"] { name } ['name']`
     return query
 }
 
@@ -41,37 +50,37 @@ export interface CategoryRelatedData {
     /*
         All artist, will appear multiple times if have more data
     */
-    all_artists:string[],
+    all_artists: string[],
     /*
         All keywords, will appear multiple times if have more data
     */
-    all_keywords:string[]
+    all_keywords: string[]
 }
 //Get all keywords and artist related to that category
 export function getCategoryRelatedData(category: string) {
 
-    const query = `*[_type=="category" && word match '${category}'] {
-  
-        'keywords': *[_type=='keyword' && references(^._id)]{
-          'inspiration' : *[_type=='inspiration' && references(^._id)]{_id},
-          'keyword': word
-        },
-        
-      }[0] 
-      {
-        'u_id': array::unique(keywords[].inspiration[]._id),
+    const query = `* [_type == "category" && word match '${category}'] {
+
+            'keywords': * [_type == 'keyword' && references(^._id)]{
+                'inspiration' : * [_type == 'inspiration' && references(^._id)]{ _id },
+                'keyword': word
+            },
+
+        } [0]
+        {
+            'u_id': array:: unique(keywords[].inspiration[]._id),
       }
-      {
-        'inspirations':*[_type=='inspiration'&&^.u_id match _id] {
-          'artist': artist->{name}.name,
-          'keywords': keywords[]->{word}.word
-        } , 
-      }
-      {
-        'all_artists' :inspirations[].artist,
-        'all_keywords':inspirations[].keywords[]
-      }
-      `
+        {
+            'inspirations':* [_type == 'inspiration' &&^.u_id match _id] {
+                'artist': artist -> { name }.name,
+                    'keywords': keywords[] -> { word }.word
+            } ,
+        }
+        {
+            'all_artists' : inspirations[].artist,
+                'all_keywords': inspirations[].keywords[]
+        }
+        `
 
     return query
 }
@@ -97,23 +106,23 @@ export function searchQueryThroughCategory(
 
     //Combined query filter
     let filter = []
-    filter.push(`_type=='inspiration'`)
+    filter.push(`_type == 'inspiration'`)
     filter.push(`^.u_id match _id`)
 
     if (keywords.length > 0) {
-        let filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('||')
+        let filterKeyword = keywords.map(keyword => `keywords[] -> word match '${keyword}'`).join('||')
         filterKeyword = `(${filterKeyword})`
 
         filter.push(filterKeyword)
     }
     if (searchArray.length > 0) {
-        let filterSearch = searchArray?.map(item => `([${normalKeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
+        let filterSearch = searchArray?.map(item => `([${normalKeys}] match '*${item}*' || keywords[] -> word match '*${item}*')`).join('&&')
         filterSearch = `(${filterSearch})`
         filter.push(filterSearch)
     }
 
     if (artists.length > 0) {
-        let filterArtist = artists.map(name => `artist->name match '${name}'`).join('||')
+        let filterArtist = artists.map(name => `artist -> name match '${name}'`).join('||')
         filterArtist = `(${filterArtist})`
         filter.push(filterArtist)
     }
@@ -121,28 +130,28 @@ export function searchQueryThroughCategory(
     const combinedFilters = filter.join('&&')
 
 
-    const query = `*[_type=="category" && word match '${category}'] {
-  
-        'keywords': *[_type=='keyword' && references(^._id)]{
-          'inspiration' : *[_type=='inspiration' && references(^._id)]{_id},
-          'keyword': word
-        },
-        
-      }[0] 
-      {
-        'u_id': array::unique(keywords[].inspiration[]._id),
-        'all_keywords': keywords[].keyword
-        
-      }
-      {
-        'inspirations':*[${combinedFilters}] {
-          _id,
-          title, 
-          'artist': artist->{name}.name,
-          embedURL,
-          keywords[]->{_id, word}
-        } , 
-    }`
+    const query = `* [_type == "category" && word match '${category}'] {
+
+            'keywords': * [_type == 'keyword' && references(^._id)]{
+                'inspiration' : * [_type == 'inspiration' && references(^._id)]{ _id },
+                'keyword': word
+            },
+
+        } [0]
+        {
+            'u_id': array:: unique(keywords[].inspiration[]._id),
+                'all_keywords': keywords[].keyword
+
+        }
+        {
+            'inspirations':* [${combinedFilters}] {
+                _id,
+                    title,
+                    'artist': artist -> { name }.name,
+                        embedURL,
+                        keywords[] -> { _id, word }
+            } ,
+        } `
     return query
 }
 
@@ -153,23 +162,23 @@ export function searchQueryThroughCategory(
 
 //     let filter = []
 //     //initial
-//     filter.push(`_type=='inspiration'`)
+//     filter.push(`_type == 'inspiration'`)
 
 //     if (ids.length > 0) {
 //         const id_query = ids.map((id) => `'${id}'`).join(',')
-//         filter.push(`[${id_query}] match _id`)
+//         filter.push(`[${ id_query }] match _id`)
 //     }
 
 //     if (keywords.length > 0) {
-//         let filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('||')
-//         filterKeyword = `(${filterKeyword})`
+//         let filterKeyword = keywords.map(keyword => `keywords[] -> word match '${keyword}'`).join('||')
+//         filterKeyword = `(${ filterKeyword })`
 
 //         filter.push(filterKeyword)
 //     }
 
 //     if (artists.length > 0) {
-//         let filterArtist = artists.map(name => `artist->name match '${name}'`).join('||')
-//         filterArtist = `(${filterArtist})`
+//         let filterArtist = artists.map(name => `artist -> name match '${name}'`).join('||')
+//         filterArtist = `(${ filterArtist })`
 //         filter.push(filterArtist)
 //     }
 

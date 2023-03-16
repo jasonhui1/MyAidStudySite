@@ -15,7 +15,12 @@ import {
     CategoryRelatedData
 } from '../FetchData/getdata';
 import { client } from '../client';
-import { CategoryData, InspirationData,  } from '../TypeScript/InspirationData';
+import {
+    CategoryData,
+    InspirationData,
+    KeywordData,
+    ArtistData
+} from '../TypeScript/InspirationData';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
 import Sidebar from '../Components/Sidebar';
@@ -128,15 +133,7 @@ export function InspirationCategory() {
     )
 }
 
-interface ArtistData{
-    name: string,
-    count: number,
-}
 
-interface KeywordData{
-    word: string,
-    count: number,
-}
 
 
 function useInitialFetch(category: string | undefined,

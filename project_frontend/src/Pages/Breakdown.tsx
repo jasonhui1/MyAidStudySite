@@ -4,15 +4,8 @@ import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getBreakdownDataFromID } from '../FetchData/getdata';
 import { useParams, Link } from 'react-router-dom'
 // import {getImageDimensions} from '@sanity/asset-utils'
-
-interface Article {
-    /**
-     * content of the block.
-     */
-    title: string,
-    content: any;
-}
-
+import { BreakdownData } from '../TypeScript/BreakdownData';
+import { SanityFileTypes } from '../TypeScript/SanityFileTypes';
 
 
 export default function Breakdown() {
@@ -23,14 +16,14 @@ export default function Breakdown() {
     useEffect(() => {
         if (page !== undefined) {
             client.fetch(getBreakdownData(page))
-                .then((article: Article) => {
+                .then((article: BreakdownData) => {
                     setPortableText(
                         <PortableText value={article.content} components={components} />,
                     )
                 })
         }
 
-    }, [])
+    }, [page])
 
     return (
         <>
@@ -44,17 +37,9 @@ export default function Breakdown() {
     )
 }
 
-interface FileTypesComponent {
-    value: {
-        asset: {
-            _ref: string;
-        };
-        alt: string;
-    };
-    isInline: boolean
-}
 
-const SampleVideoComponent = ({ value }: FileTypesComponent): JSX.Element => {
+
+const SampleVideoComponent = ({ value }: SanityFileTypes): JSX.Element => {
     const [_file, id, extension] = value.asset._ref.split('-');
     const PROJECT_ID = client.config().projectId
     const DATASET = client.config().dataset
@@ -70,7 +55,7 @@ const SampleVideoComponent = ({ value }: FileTypesComponent): JSX.Element => {
 }
 
 
-const SampleImageComponent = ({ value, isInline }: FileTypesComponent): JSX.Element => {
+const SampleImageComponent = ({ value, isInline }: SanityFileTypes): JSX.Element => {
     // console.log('value', value)
     return (
         <img
@@ -144,7 +129,7 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
     if (refId !== undefined) {
         const query = getBreakdownDataFromID(refId)
         client.fetch(query)
-            .then((article: Article) => {
+            .then((article: BreakdownData) => {
                 setTitle(article.title)
             })
     }
