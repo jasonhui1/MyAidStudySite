@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { client, urlFor } from '../client';
 import { PortableText, PortableTextReactComponents } from '@portabletext/react'
-import { getBreakdownData } from '../FetchData/getdata';
+import { getBreakdownData, getBreakdownDataFromID } from '../FetchData/getdata';
+import { useParams, Link } from 'react-router-dom'
 // import {getImageDimensions} from '@sanity/asset-utils'
 
 interface Article {
     /**
      * content of the block.
      */
+    title: string,
     content: any;
 }
 
@@ -16,14 +18,17 @@ interface Article {
 export default function Breakdown() {
 
     const [portableText, setPortableText] = useState<JSX.Element>()
+    const { page } = useParams<string>();
 
     useEffect(() => {
-        client.fetch(getBreakdownData())
-            .then((article: Article) => {
-                setPortableText(
-                    <PortableText value={article.content} components={components} />,
-                )
-            })
+        if (page !== undefined) {
+            client.fetch(getBreakdownData(page))
+                .then((article: Article) => {
+                    setPortableText(
+                        <PortableText value={article.content} components={components} />,
+                    )
+                })
+        }
 
     }, [])
 
@@ -80,31 +85,35 @@ const SampleImageComponent = ({ value, isInline }: FileTypesComponent): JSX.Elem
     )
 }
 
-interface Text {
-    text: string
-}
+// interface Text {
+//     text: string
+// }
 
 
-interface TextComponent {
-    value: {
-        children: Text[]
-    };
-}
+// interface TextComponent {
+//     value?: {
+//         children: Text[]
+//     };
+// }
 
 const Convert_text = ({ value }: any): JSX.Element => {
-    const line = value.children[0].text
     let tag = 'p'
-    let content = line
+    let content: string | null = ''
 
-    if (line.startsWith('#')) {
-        const level = line.indexOf(' '); // Get the level of the heading
-        tag = 'h' + level; // Create the heading tag
-        content = line.slice(level + 1); // Get the text of the heading
-    }
+    if (value !== undefined) {
+        const line = value.children[0].text
+        content = line
 
-    if (line === '---'){
-        tag = 'hr'
-        content=null
+        if (line.startsWith('#')) {
+            const level = line.indexOf(' '); // Get the level of the heading
+            tag = 'h' + level; // Create the heading tag
+            content = line.slice(level + 1); // Get the text of the heading
+        }
+
+        if (line === '---') {
+            tag = 'hr'
+            content = null
+        }
     }
 
     return (
@@ -113,7 +122,46 @@ const Convert_text = ({ value }: any): JSX.Element => {
     )
 }
 
+
+interface InternalLinkComponent {
+
+    // {_key: '6940a20b3fd2', _type: 'internalLink', reference: {…}}
+    // markKey"6940a20b3fd2"
+    // markType"internalLink"
+
+    value?: {
+        reference: {
+            _ref: string;
+        };
+    };
+    children: React.ReactNode,
+}
+
+// const SampleInternalLinkComponent = ({value}: InternalLinkComponent) => {
+const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent): JSX.Element => {
+    const refId = value?.reference._ref
+    const [title, setTitle] = useState('second')
+    if (refId !== undefined) {
+        const query = getBreakdownDataFromID(refId)
+        client.fetch(query)
+            .then((article: Article) => {
+                setTitle(article.title)
+            })
+    }
+
+    console.log('title', title)
+
+    return (
+        React.createElement(Link, { to: `/breakdown/${title}` }, children)
+    )
+}
+
 const components: Partial<PortableTextReactComponents> = {
+    marks: {
+        // Ex. 1: custom renderer for the em / italics decorator
+        em: ({ children }) => <em className="text-gray-600 font-semibold">{children}</em>,
+        internalLink: SampleInternalLinkComponent,
+    },
     list: {
         // Ex. 1: customizing common list types
         bullet: ({ children }) => <ul className="mt-xl">{children}</ul>,

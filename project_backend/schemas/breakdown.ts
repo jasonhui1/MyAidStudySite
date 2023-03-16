@@ -14,7 +14,28 @@ export default {
             type: 'array',
             of: [
                 {
-                    type: 'block'
+                    type: 'block',
+                    marks: {
+                        annotations: [
+                          {
+                            name: 'internalLink',
+                            title: 'Internal link',
+                            type: 'object',
+                            fields: [
+                              {
+                                name: 'reference',
+                                type: 'reference',
+                                title: 'Reference',
+                                to: [
+                                  { type: 'breakdown' },
+                                  // other types you may want to link to
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                    }
+                    
                 },
                 {
                     type: 'image'
@@ -23,7 +44,10 @@ export default {
                     type: 'file',
                     storeOriginalFilename: true
                 }
-            ]
+            ],
+ 
         },
+
+            
     ]
 }

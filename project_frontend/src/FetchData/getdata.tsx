@@ -1,8 +1,14 @@
 import { InspirationData } from '../TypeScript/InspirationData';
-export function getBreakdownData(): string {
-    const query = `*[_type == "breakdown" && title match 'Voronoi Texture'][0]`
+export function getBreakdownData(page:string): string {
+    const query = `*[_type == "breakdown" && title match '*${page}*'][0]`
     return query
 }
+
+export function getBreakdownDataFromID(id:string): string {
+    const query = `*[_type == "breakdown" && _id == '${id}'][0]`
+    return query
+}
+
 
 export function getAllKeywordData(): string {
     const query = `*[_type == "keyword"] {word}['word']`
