@@ -14,13 +14,16 @@ export function getBreakdownData(page: string = ''): string {
 }
 
 export function getBreakdownDataFromID(id: string): string {
-    const query = `* [_type == "breakdown" && _id == '${id}'][0]`
+    const query = `*[_type == "breakdown" && _id == '${id}']         {
+        _id, title, description, image, content,
+        'keywords':keywords[]->word
+    }[0]`
     return query
 }
 
 
 export function getAllKeywordData(): string {
-    const query = `* [_type == "keyword"] { word } ['word']`
+    const query = `*[_type == "keyword"] { word } ['word']`
     return query
 }
 

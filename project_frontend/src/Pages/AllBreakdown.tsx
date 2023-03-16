@@ -32,7 +32,7 @@ export default function AllBreakdown() {
             <div className='flex gap-5'>
                 <Sidebar all_categories={all_categories.current} />
                 <div className='flex flex-col'>
-                    <h1 className=' text-center'>All Breakdown</h1>
+                    <h1 className=' text-center '>All Breakdown</h1>
                     <div className='grid grid-cols-3 justify-center gap-4'>
 
                         {breakdown.map((props: BreakdownData) => {
@@ -47,7 +47,7 @@ export default function AllBreakdown() {
     )
 }
 
-function BreakdownCard({ title, description, image, keywords }: BreakdownData) {
+export function BreakdownCard({ title, description, image, keywords }: BreakdownData) {
 
     const navigate = useNavigate()
     const handleClick = () => {

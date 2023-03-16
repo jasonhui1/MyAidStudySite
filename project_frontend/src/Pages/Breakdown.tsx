@@ -6,6 +6,7 @@ import { useParams, Link } from 'react-router-dom'
 // import {getImageDimensions} from '@sanity/asset-utils'
 import { BreakdownData } from '../TypeScript/BreakdownData';
 import { SanityFileTypes } from '../TypeScript/SanityFileTypes';
+import { BreakdownCard } from './AllBreakdown';
 
 
 export default function Breakdown() {
@@ -125,19 +126,43 @@ interface InternalLinkComponent {
 // const SampleInternalLinkComponent = ({value}: InternalLinkComponent) => {
 const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent): JSX.Element => {
     const refId = value?.reference._ref
-    const [title, setTitle] = useState('second')
+    const [breakdown, setBreakdown] = useState<BreakdownData>()
+    const [hover, setHover] = useState(false)
+
     if (refId !== undefined) {
         const query = getBreakdownDataFromID(refId)
         client.fetch(query)
-            .then((article: BreakdownData) => {
-                setTitle(article.title)
+            .then((breakdown: BreakdownData) => {
+                setBreakdown(breakdown)
             })
     }
 
-    console.log('title', title)
+    if (breakdown === undefined) {
+        return (
+            React.createElement('p', null, children)
+        )
+    }
+
+    const handleHover = () => {
+        setHover(!hover)
+        console.log('hover', hover)
+        if (hover){
+            return (<BreakdownCard {...breakdown} />)
+        } 
+        return (<></>)
+    }
+
 
     return (
-        React.createElement(Link, { to: `/breakdown/${title}` }, children)
+        <>
+            {React.createElement(Link, { 
+                to: `/breakdown/${breakdown?.title}`, 
+                className: 'text-orange-700' ,
+                onMouseEnter: handleHover, 
+                onMouseLeave: handleHover }, 
+            children)}
+            {hover && (<BreakdownCard {...breakdown} />)}
+        </>
     )
 }
 
