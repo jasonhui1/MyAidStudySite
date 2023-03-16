@@ -29,14 +29,17 @@ export default function Breakdown() {
 
     return (
         <>
-            <div>Breakdown</div>
-            <div className='portableText'>{portableText}</div>
+            <div className=' flex flex-col justify-center items-center'>
+
+                <h1>Breakdown</h1>
+                <div className='portableText'>{portableText}</div>
+            </div>
 
         </>
     )
 }
 
-interface TypesComponent {
+interface FileTypesComponent {
     value: {
         asset: {
             _ref: string;
@@ -46,7 +49,7 @@ interface TypesComponent {
     isInline: boolean
 }
 
-const SampleVideoComponent = ({ value }: TypesComponent): JSX.Element => {
+const SampleVideoComponent = ({ value }: FileTypesComponent): JSX.Element => {
     const [_file, id, extension] = value.asset._ref.split('-');
     const PROJECT_ID = client.config().projectId
     const DATASET = client.config().dataset
@@ -62,7 +65,7 @@ const SampleVideoComponent = ({ value }: TypesComponent): JSX.Element => {
 }
 
 
-const SampleImageComponent = ({ value, isInline } : TypesComponent) : JSX.Element => {
+const SampleImageComponent = ({ value, isInline }: FileTypesComponent): JSX.Element => {
     // console.log('value', value)
     return (
         <img
@@ -74,6 +77,39 @@ const SampleImageComponent = ({ value, isInline } : TypesComponent) : JSX.Elemen
             alt={value.alt || ' '}
             loading="lazy"
         />
+    )
+}
+
+interface Text {
+    text: string
+}
+
+
+interface TextComponent {
+    value: {
+        children: Text[]
+    };
+}
+
+const Convert_text = ({ value }: any): JSX.Element => {
+    const line = value.children[0].text
+    let tag = 'p'
+    let content = line
+
+    if (line.startsWith('#')) {
+        const level = line.indexOf(' '); // Get the level of the heading
+        tag = 'h' + level; // Create the heading tag
+        content = line.slice(level + 1); // Get the text of the heading
+    }
+
+    if (line === '---'){
+        tag = 'hr'
+        content=null
+    }
+
+    return (
+        React.createElement(tag, null, content)
+        // {html}
     )
 }
 
@@ -101,5 +137,11 @@ const components: Partial<PortableTextReactComponents> = {
         //     </pre>
         // )
     },
+    block: {
+        normal: Convert_text,
+
+    }
+
 
 }
+

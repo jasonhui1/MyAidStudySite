@@ -104,7 +104,7 @@ export function InspirationCategory() {
 
                         <Sidebar all_categories={all_categories} />
                         <div className=' container mx-auto'>
-                            <h1 className='text-center capitalize'>{category}</h1>
+                            <h1 className='text-center capitalize text-6xl my-3'>{category}</h1>
                             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
                             <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance search</button>
 

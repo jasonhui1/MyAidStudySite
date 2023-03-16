@@ -1,6 +1,6 @@
 import { InspirationData } from '../TypeScript/InspirationData';
 export function getBreakdownData(): string {
-    const query = `*[_type == "breakdown" && title match 'shield'][0]`
+    const query = `*[_type == "breakdown" && title match 'Voronoi Texture'][0]`
     return query
 }
 
