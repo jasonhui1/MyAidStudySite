@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { client, urlFor } from '../client';
 import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getBreakdownDataFromID } from '../FetchData/getdata';
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 // import {getImageDimensions} from '@sanity/asset-utils'
 import { BreakdownData } from '../TypeScript/BreakdownData';
 import { SanityFileTypes } from '../TypeScript/SanityFileTypes';
@@ -127,6 +127,9 @@ interface InternalLinkComponent {
 const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent): JSX.Element => {
     const [breakdown, setBreakdown] = useState<BreakdownData>()
     const [hover, setHover] = useState(false)
+    const [mousePosition, setMousePosition] = useState<number[]>([2, 2])
+    const navigate = useNavigate()
+
 
     useEffect(() => {
         const refId = value?.reference._ref
@@ -148,39 +151,68 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
     }
 
     let timeoutId: NodeJS.Timeout;
-    const handleMouseEnter =()=> {
+    const handleMouseEnterLink = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        const x = e.pageX - e.currentTarget.offsetLeft;
+        const y = e.pageY - e.currentTarget.offsetTop;
+        setMousePosition([x, y]) 
+
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
-            setHover(true)
+        setHover(true)
         }, 300);
     }
 
-    function handleMouseLeave() {
+    function handleMouseLeaveLink() {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
             setHover(false)
         }, 300);
-      }
+    }
+
+    //Not work as intended
+    // const handleMouseEnterCard = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    //     clearTimeout(timeoutId);
+    //     timeoutId = setTimeout(() => {
+    //         setHover(true)
+    //     }, 300);
+    // }
+
+
+    // const handleMouseLeaveCard = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    //     e.stopPropagation();
+    //     clearTimeout(timeoutId);
+    //     timeoutId = setTimeout(() => {
+    //         setHover(false)
+    //     }, 300);
+    // }
+
 
     return (
         <>
-            {React.createElement(Link, {
-                to: `/breakdown/${breakdown?.title}`,
-                className: 'text-orange-700 ',
-                onMouseEnter: handleMouseEnter,
-                onMouseLeave: handleMouseLeave
+            {React.createElement('div', {
+                onClick: () => navigate(`/breakdown/${breakdown?.title}`),
+                className: 'text-orange-700',
+
             },
-                <div className='relative inline'>
+                <div className='relative inline  cursor-pointer'
+                    onMouseEnter={(e) => handleMouseEnterLink(e)}
+                    onMouseLeave={handleMouseLeaveLink}
+                    onClick={() => navigate(`/breakdown/${breakdown?.title}`)}>
+
                     {children}
-                    <div onMouseEnter={() => handleMouseEnter}
-                        onMouseLeave={() => handleMouseLeave}>
-                            {/* TODO: Show relative to the mouse position */}
-                        {hover && (<BreakdownCard data={breakdown} additionalClassname='absolute top-8 left-16 bg-sky-200' />)}
+                    {hover && <div
+                        className='absolute'
+                        style={{ 'left': `${mousePosition[0]}px` }}
+                        >
+                        {/* onMouseEnter={(e) => handleMouseEnterCard(e)}
+                        onMouseLeave={(e) => handleMouseLeaveCard(e)} */}
+                        <BreakdownCard data={breakdown} additionalClassname=' bg-sky-200' />
                     </div>
+                    }
+
                 </div>
             )
             }
-            {/* <div className=' btn absolute top-16'></div> */}
         </>
     )
 }

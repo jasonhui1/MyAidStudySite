@@ -53,7 +53,7 @@ interface BreakdownCardProps {
     additionalClassname?: string;
   }
 
-export function BreakdownCard({ data, additionalClassname='' }: BreakdownCardProps) {
+export function BreakdownCard({ data,  additionalClassname='' }: BreakdownCardProps) {
 
     const { title, description, image, keywords } = data;
     const navigate = useNavigate()
