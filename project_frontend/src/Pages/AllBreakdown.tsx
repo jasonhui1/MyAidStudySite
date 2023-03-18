@@ -36,7 +36,7 @@ export default function AllBreakdown() {
                     <div className='grid grid-cols-3 justify-center gap-4'>
 
                         {breakdown.map((props: BreakdownData) => {
-                            return <BreakdownCard key={props._id} {...props} />
+                            return <BreakdownCard key={props._id} data={props} />
                         })}
 
                     </div>
@@ -47,15 +47,22 @@ export default function AllBreakdown() {
     )
 }
 
-export function BreakdownCard({ title, description, image, keywords }: BreakdownData) {
 
+interface BreakdownCardProps {
+    data: BreakdownData;
+    additionalClassname?: string;
+  }
+
+export function BreakdownCard({ data, additionalClassname='' }: BreakdownCardProps) {
+
+    const { title, description, image, keywords } = data;
     const navigate = useNavigate()
     const handleClick = () => {
         navigate(`${title}`)
     }
 
     return (
-        <div className='card shadow-lg p-4 cursor-pointer hover:bg-sky-100' onClick={handleClick}>
+        <div className={'card shadow-lg p-4 cursor-pointer hover:bg-sky-100 ' + additionalClassname} onClick={handleClick}>
             <div className=' card-title p-2'> {title}</div>
             <div className=' card-body'>
                 <h4> {description}</h4>

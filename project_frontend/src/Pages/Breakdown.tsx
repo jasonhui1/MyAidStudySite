@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { client, urlFor } from '../client';
 import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getBreakdownDataFromID } from '../FetchData/getdata';
@@ -125,17 +125,21 @@ interface InternalLinkComponent {
 
 // const SampleInternalLinkComponent = ({value}: InternalLinkComponent) => {
 const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent): JSX.Element => {
-    const refId = value?.reference._ref
     const [breakdown, setBreakdown] = useState<BreakdownData>()
     const [hover, setHover] = useState(false)
 
-    if (refId !== undefined) {
-        const query = getBreakdownDataFromID(refId)
-        client.fetch(query)
-            .then((breakdown: BreakdownData) => {
-                setBreakdown(breakdown)
-            })
-    }
+    useEffect(() => {
+        const refId = value?.reference._ref
+        if (refId !== undefined) {
+            const query = getBreakdownDataFromID(refId)
+            console.log('querying')
+            client.fetch(query)
+                .then((breakdown: BreakdownData) => {
+                    setBreakdown(breakdown)
+                })
+        }
+
+    }, [])
 
     if (breakdown === undefined) {
         return (
@@ -143,25 +147,40 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
         )
     }
 
-    const handleHover = () => {
-        setHover(!hover)
-        console.log('hover', hover)
-        if (hover){
-            return (<BreakdownCard {...breakdown} />)
-        } 
-        return (<></>)
+    let timeoutId: NodeJS.Timeout;
+    const handleMouseEnter =()=> {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            setHover(true)
+        }, 300);
     }
 
+    function handleMouseLeave() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            setHover(false)
+        }, 300);
+      }
 
     return (
         <>
-            {React.createElement(Link, { 
-                to: `/breakdown/${breakdown?.title}`, 
-                className: 'text-orange-700' ,
-                onMouseEnter: handleHover, 
-                onMouseLeave: handleHover }, 
-            children)}
-            {hover && (<BreakdownCard {...breakdown} />)}
+            {React.createElement(Link, {
+                to: `/breakdown/${breakdown?.title}`,
+                className: 'text-orange-700 ',
+                onMouseEnter: handleMouseEnter,
+                onMouseLeave: handleMouseLeave
+            },
+                <div className='relative inline'>
+                    {children}
+                    <div onMouseEnter={() => handleMouseEnter}
+                        onMouseLeave={() => handleMouseLeave}>
+                            {/* TODO: Show relative to the mouse position */}
+                        {hover && (<BreakdownCard data={breakdown} additionalClassname='absolute top-8 left-16 bg-sky-200' />)}
+                    </div>
+                </div>
+            )
+            }
+            {/* <div className=' btn absolute top-16'></div> */}
         </>
     )
 }
