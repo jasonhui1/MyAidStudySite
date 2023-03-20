@@ -36,9 +36,15 @@ interface AllArtistsCheckBoxesProps {
 export function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistCheckState }: AllArtistsCheckBoxesProps): JSX.Element {
     return (
         <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-            {artists.map(({name, count}: ArtistData, i: number) => {
+            {artists.map(({ name, count }: ArtistData, i: number) => {
                 return (
-                    <CheckBox key={i} value={name + ' ' + count} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
+                    <>
+                        <div className='relative '>
+
+                            <CheckBox key={i} value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} after={count} className={`checkbox-count`} />
+                            {/* <span className='absolute bottom-0 right-5 w-10 h-10 bg-white rounded-full flex justify-center items-center'>{count}</span> */}
+                        </div>
+                    </>
                 )
             })}
         </div>
@@ -56,9 +62,9 @@ function AllKeywordsCheckBoxes({ keywords, keywordCheckState, handleKeywordCheck
         <>
             {keywords.length > 0 ?
                 <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-                    {keywords.map(({word, count}: KeywordData, i: number) => {
+                    {keywords.map(({ word, count }: KeywordData, i: number) => {
                         return (
-                            <CheckBox key={i} value={word +' ' + count} onChange={() => handleKeywordCheckbox(i)} check={keywordCheckState[i]} />
+                            <CheckBox key={i} value={word} onChange={() => handleKeywordCheckbox(i)} check={keywordCheckState[i]} after={count} className={`checkbox-count`}  />
                         )
                     })}
                 </div>
@@ -78,9 +84,9 @@ export function InspirationCategory() {
 
 
     let [all_keywords, all_categories, all_artists] = useInitialFetch(category, setInspirationData, setKeywordCheckState, setArtistCheckState)
-    const all_artists_name = all_artists.map(({name}:ArtistData) => name)
-    const all_keywords_word = all_keywords.map(({word}:KeywordData) => word)
-    
+    const all_artists_name = all_artists.map(({ name }: ArtistData) => name)
+    const all_keywords_word = all_keywords.map(({ word }: KeywordData) => word)
+
     let [handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxesSetup(keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState)
 
 
@@ -110,7 +116,7 @@ export function InspirationCategory() {
                         <Sidebar all_categories={all_categories} />
                         <div className=' container mx-auto'>
                             <h1 className='text-center capitalize my-3'>{category}</h1>
-                            <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+                            <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                             <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance search</button>
 
                             {openAdvSetting &&
@@ -163,21 +169,21 @@ function useInitialFetch(category: string | undefined,
 
             //Get all keywords/ artists related to this category
             const categoryRelatedDataQuery = getCategoryRelatedData(category)
-            client.fetch(categoryRelatedDataQuery).then(({all_artists, all_keywords}:CategoryRelatedData) => {
+            client.fetch(categoryRelatedDataQuery).then(({ all_artists, all_keywords }: CategoryRelatedData) => {
 
                 const sortedArtistArray = CountAndSortArray(all_artists)
-                const artistObjectArray:ArtistData[] = sortedArtistArray.map(([name, count]) => {
+                const artistObjectArray: ArtistData[] = sortedArtistArray.map(([name, count]) => {
                     return { name, count };
-                  });
+                });
 
                 artists.current = artistObjectArray
                 setArtistCheckState(new Array(artistObjectArray.length).fill(false))
 
 
                 const sortedKeywordArray = CountAndSortArray(all_keywords)
-                const keywordObjectArray:KeywordData[] = sortedKeywordArray.map(([word, count]) => {
+                const keywordObjectArray: KeywordData[] = sortedKeywordArray.map(([word, count]) => {
                     return { word, count };
-                  });
+                });
 
                 keywords.current = keywordObjectArray
                 setKeywordCheckState(new Array(keywordObjectArray.length).fill(keywordInitialFill))
@@ -226,16 +232,16 @@ function handleCheckboxesSetup(
 }
 
 
-interface ArrayItemCount{
-    [key:string]: number,
+interface ArrayItemCount {
+    [key: string]: number,
 }
 
-function CountAndSortArray(array:string[]){
-    const artistCount = array.reduce((acc:ArrayItemCount, curr:string) => {
+function CountAndSortArray(array: string[]) {
+    const artistCount = array.reduce((acc: ArrayItemCount, curr: string) => {
         //If exist, +1, else set to 1
         acc[curr] = acc[curr] ? acc[curr] + 1 : 1;
         return acc;
-      }, {});
+    }, {});
 
     const sortedArray = Object.entries(artistCount).sort((a, b) => b[1] - a[1])
     return sortedArray

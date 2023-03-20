@@ -107,4 +107,8 @@ blockquote.twitter-tweet p{
     margin: auto;
 }
 
+.checkbox-count{
+    @apply after:content-[attr(data-after)] after:w-5 after:h-5 after:bg-red-200 after:rounded-full after:inline-block after:left-1/2 after:top-1/2 after:text-center after:text-sm after:translate-x-1/2
+}
+
 /* flex flex-col  justify-center items-center rounded-lg outline shadow-lg gap-3 mb-4 p-4'  */
