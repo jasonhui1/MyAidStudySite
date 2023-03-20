@@ -120,7 +120,7 @@ export function InspirationCategory() {
                             <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance search</button>
 
                             {openAdvSetting &&
-                                <div className='flex flex-col gap-2 my-2'>
+                                <div className='flex flex-col gap-2 my-2 animate-fadeIn'>
                                     <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
                                     <AllKeywordsCheckBoxes keywords={all_keywords} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} />
 
