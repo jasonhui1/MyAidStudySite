@@ -151,40 +151,36 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
     }
 
     let timeoutId: NodeJS.Timeout;
-    const handleMouseEnterLink = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    function ResetTimeout(f:() => void, delay:number) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            f()
+        }, delay);
+    }
+
+    const handleMouseOverLink = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const x = e.pageX - e.currentTarget.offsetLeft;
         const y = e.pageY - e.currentTarget.offsetTop;
-        setMousePosition([x, y]) 
+        setMousePosition([x, y])
 
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-        setHover(true)
-        }, 300);
+        ResetTimeout(()=>setHover(true), 300)
     }
 
-    function handleMouseLeaveLink() {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            setHover(false)
-        }, 300);
+    function handleMouseOutLink() {
+        ResetTimeout(()=>setHover(false), 300)
     }
 
-    //Not work as intended
-    // const handleMouseEnterCard = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    //     clearTimeout(timeoutId);
-    //     timeoutId = setTimeout(() => {
-    //         setHover(true)
-    //     }, 300);
-    // }
+    // Not work as intended
+    const handleMouseOverCard = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation()
+        ResetTimeout(()=>setHover(true), 300)
+    }
 
 
-    // const handleMouseLeaveCard = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    //     e.stopPropagation();
-    //     clearTimeout(timeoutId);
-    //     timeoutId = setTimeout(() => {
-    //         setHover(false)
-    //     }, 300);
-    // }
+    const handleMouseOutCard = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation()
+        ResetTimeout(()=>setHover(false), 300)
+    }
 
 
     return (
@@ -195,19 +191,20 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
 
             },
                 <div className='relative inline  cursor-pointer'
-                    onMouseEnter={(e) => handleMouseEnterLink(e)}
-                    onMouseLeave={handleMouseLeaveLink}
+                    onMouseOver={(e) => handleMouseOverLink(e)}
+                    onMouseLeave={handleMouseOutLink}
                     onClick={() => navigate(`/breakdown/${breakdown?.title}`)}>
 
                     {children}
-                    {hover && <div
-                        className='absolute'
-                        style={{ 'left': `${mousePosition[0]}px` }}
+                    {hover &&
+                        <div
+                            className='absolute w-96 -top'
+                            style={{ 'left': `${mousePosition[0]}px` }}
+                            onMouseOver={(e) => handleMouseOverCard(e)}
+                            onMouseLeave={(e) => handleMouseOutCard(e)}
                         >
-                        {/* onMouseEnter={(e) => handleMouseEnterCard(e)}
-                        onMouseLeave={(e) => handleMouseLeaveCard(e)} */}
-                        <BreakdownCard data={breakdown} additionalClassname=' bg-sky-200' />
-                    </div>
+                            <BreakdownCard data={breakdown} additionalClassname=' bg-sky-200' />
+                        </div>
                     }
 
                 </div>

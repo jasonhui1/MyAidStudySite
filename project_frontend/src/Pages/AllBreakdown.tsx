@@ -78,8 +78,8 @@ export function BreakdownCard({ data,  additionalClassname='' }: BreakdownCardPr
 
                 <h6 className=' font-bold my-1'> Keywords</h6>
                 <ul> 
-                    {keywords.map((word:string) => {
-                        return <li>{word}</li>
+                    {keywords.map((word:string, i:number) => {
+                        return <li key={i}>{word}</li>
                     })}
                 </ul>
 
