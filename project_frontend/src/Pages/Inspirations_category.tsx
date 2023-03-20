@@ -113,7 +113,7 @@ export function InspirationCategory() {
                 <>
                     <div className='flex gap-5'>
 
-                        <Sidebar all_categories={all_categories} />
+                        <Sidebar all_categories={all_categories} path='../' />
                         <div className=' container mx-auto'>
                             <h1 className='text-center capitalize my-3'>{category}</h1>
                             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />

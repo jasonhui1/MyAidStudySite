@@ -124,7 +124,7 @@ export function Inspiration() {
             <div className=''>
                 <div className='flex gap-5'>
 
-                    <Sidebar all_categories={all_categories} />
+                    <Sidebar all_categories={all_categories} path='./'/>
                     <div className='mt-4 container mx-auto'>
                     <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
 

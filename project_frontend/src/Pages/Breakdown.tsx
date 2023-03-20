@@ -13,6 +13,7 @@ export default function Breakdown() {
 
     const [portableText, setPortableText] = useState<JSX.Element>()
     const { page } = useParams<string>();
+    console.log('page', page)
 
     useEffect(() => {
         if (page !== undefined) {

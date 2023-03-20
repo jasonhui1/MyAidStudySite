@@ -30,7 +30,7 @@ export default function AllBreakdown() {
     return (
         <>
             <div className='flex gap-5'>
-                <Sidebar all_categories={all_categories.current} />
+                <Sidebar all_categories={all_categories.current} path='./' />
 
                 <div className='flex flex-col p-8'>
                     <h1 className=' text-center '>All Breakdown</h1>

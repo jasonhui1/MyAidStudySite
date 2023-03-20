@@ -67,7 +67,7 @@
 
 body {
     font-family: 'Lato', sans-serif;
-    height: 100vw;
+    /* height: 100vw; */
     margin: 0;
     padding: 0;
     box-sizing: border-box;

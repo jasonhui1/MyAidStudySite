@@ -9,11 +9,17 @@ import AllBreakdown from './Pages/AllBreakdown';
 const App = () => {
     return (
         <Routes>
-            <Route path='breakdown' element={<AllBreakdown/>} />
-            <Route path='breakdown/:page' element={<Breakdown/>} />
-            <Route path='inspiration' element={<Inspiration/>} />
-            <Route path='inspiration/:category' element={<InspirationCategory />} />
-            <Route path='test' element={<Test/>} />
+
+            <Route path='/breakdown'>
+                <Route index element={<AllBreakdown />} />
+                <Route path=':page' element={<Breakdown />} />
+            </Route>
+
+            <Route path='/inspiration'>
+                <Route index element={<Inspiration />} />
+                <Route path=':category' element={<InspirationCategory />} />
+            </Route>
+            <Route path='test' element={<Test />} />
 
         </Routes>
     )
