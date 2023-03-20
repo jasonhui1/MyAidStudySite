@@ -53,7 +53,7 @@ export default  function InspirationEmbed({ _id, title = '', artist, keywords, e
     return (
         <>
             <div className='flex flex-col  card justify-center items-center rounded-lg outline shadow-lg gap-3 mb-4 p-4'>
-                <h1>{title}</h1>
+                <h2>{title}</h2>
                 <h4 className=''>Keywords:
                     <span className='font-bold'>{keywordList.join(', ')}
 

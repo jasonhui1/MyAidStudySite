@@ -2,15 +2,16 @@
 
 @layer base {
     h1 {
-        @apply text-3xl;
+        @apply text-6xl;
+        @apply mb-3;
     }
 
     h2 {
-        @apply text-2xl;
+        @apply text-3xl;
     }
 
     h3 {
-        @apply text-xl;
+        @apply text-2xl;
     }
 
     h4 {
@@ -46,7 +47,8 @@
     }
 
     body {
-        @apply block m-2
+        @apply block m-2;
+        @apply bg-slate-100;
     }
 
     hr {
@@ -56,6 +58,7 @@
         width: 96%;               
         background-color: black;
         height: 1px;
+        margin-bottom: 0.5rem
     }
 }
 
@@ -64,6 +67,7 @@
 
 body {
     font-family: 'Lato', sans-serif;
+    height: 100vw;
     margin: 0;
     padding: 0;
     box-sizing: border-box;

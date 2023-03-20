@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { client, urlFor } from '../client';
 import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getBreakdownDataFromID, getAllCategoryData } from '../FetchData/getdata';
-import { useParams, Link, useNavigate, useAsyncError  } from 'react-router-dom'
+import { useParams, Link, useNavigate, useAsyncError } from 'react-router-dom'
 import { BreakdownData } from '../TypeScript/BreakdownData';
 import Sidebar from '../Components/Sidebar';
 import { CategoryData, KeywordData } from '../TypeScript/InspirationData';
@@ -31,9 +31,11 @@ export default function AllBreakdown() {
         <>
             <div className='flex gap-5'>
                 <Sidebar all_categories={all_categories.current} />
-                <div className='flex flex-col'>
+
+                <div className='flex flex-col p-8'>
                     <h1 className=' text-center '>All Breakdown</h1>
-                    <div className='grid grid-cols-3 justify-center gap-4'>
+                    <hr></hr>
+                    <div className='grid grid-cols-3 justify-center gap-10'>
 
                         {breakdown.map((props: BreakdownData) => {
                             return <BreakdownCard key={props._id} data={props} />
@@ -51,9 +53,9 @@ export default function AllBreakdown() {
 interface BreakdownCardProps {
     data: BreakdownData;
     additionalClassname?: string;
-  }
+}
 
-export function BreakdownCard({ data,  additionalClassname='' }: BreakdownCardProps) {
+export function BreakdownCard({ data, additionalClassname = '' }: BreakdownCardProps) {
 
     const { title, description, image, keywords } = data;
     const navigate = useNavigate()
@@ -62,23 +64,22 @@ export function BreakdownCard({ data,  additionalClassname='' }: BreakdownCardPr
     }
 
     return (
-        <div className={'card shadow-lg p-4 cursor-pointer hover:bg-sky-100 ' + additionalClassname} onClick={handleClick}>
-            <div className=' card-title p-2'> {title}</div>
-            <div className=' card-body'>
+        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 delay-200' + additionalClassname} onClick={handleClick}>
+            {(image !== null) &&
+                <img src={urlFor(image)
+                    .auto('format')
+                    .url()}
+                    alt={title}
+                    className='bg-contain p-4  rounded-3xl hover:opacity-95 duration-1000 delay-200'>
+
+                </img>
+            }
+            <div className=' card-body gap-3 '>
+                <h2 className=' font-semibold'> {title}</h2>
                 <h4> {description}</h4>
-                {(image !== null)  &&
-                    <img src={urlFor(image).width(300)
-                        .fit('max')
-                        .auto('format')
-                        .url()}
-                         className=' my-2'>
-
-                    </img>
-                }
-
-                <h6 className=' font-bold my-1'> Keywords</h6>
-                <ul> 
-                    {keywords.map((word:string, i:number) => {
+                <h6 className=' font-bold'> Keywords</h6>
+                <ul>
+                    {keywords.map((word: string, i: number) => {
                         return <li key={i}>{word}</li>
                     })}
                 </ul>

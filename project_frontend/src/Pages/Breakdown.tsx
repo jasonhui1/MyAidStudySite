@@ -203,7 +203,7 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
                             onMouseOver={(e) => handleMouseOverCard(e)}
                             onMouseLeave={(e) => handleMouseOutCard(e)}
                         >
-                            <BreakdownCard data={breakdown} additionalClassname=' bg-sky-200' />
+                            <BreakdownCard data={breakdown} />
                         </div>
                     }
 
