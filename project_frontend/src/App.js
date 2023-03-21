@@ -13,7 +13,7 @@ const App = () => {
 
             <Route path='/breakdown'>
                 <Route index element={<AllBreakdown />} />
-                <Route path='category'>
+                <Route path=':category'>
                     <Route index element={<BreakdownCategory />} />
                     <Route path=':page' element={<SingleBreakdown />} />
                 </Route>

@@ -21,6 +21,33 @@ export function getBreakdownDataFromID(id: string): string {
     return query
 }
 
+export function getBreakdownDataFromCategory(category: string): string {
+    const query = `* [_type == "category" && word match '${category}'] {
+
+        'keywords': * [_type == 'keyword' && references(^._id)]{
+            'breakdown' : * [_type == 'breakdown' && references(^._id)]{ _id },
+            'keyword': word
+        },
+
+    } [0]
+    {
+        'u_id': array:: unique(keywords[].breakdown[]._id),
+    }
+    {
+        'breakdown':* [_type == 'breakdown' &&^.u_id match _id]{
+            _id, title, description, image, content,
+            'keywords':keywords[]->word
+        }
+    }
+    {
+        breakdown,
+        'all_keywords': breakdown[].keywords[]
+    }
+    `
+
+    return query
+}
+
 
 export function getAllKeywordData(): string {
     const query = `*[_type == "keyword"] { word } ['word']`
@@ -46,7 +73,6 @@ export function getAllArtistData(): string {
     const query = `* [_type == "artist"] { name } ['name']`
     return query
 }
-
 
 
 export interface CategoryRelatedData {

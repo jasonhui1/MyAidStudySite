@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 // import {getImageDimensions} from '@sanity/asset-utils'
 import { BreakdownData } from '../TypeScript/BreakdownData';
 import { SanityFileTypes } from '../TypeScript/SanityFileTypes';
-import { BreakdownCard } from './AllBreakdown';
+import { BreakdownCard } from '../Components/BreakdownCard';
 
 
 export default function SingleBreakdown() {

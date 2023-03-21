@@ -16,3 +16,8 @@ export interface BreakdownData {
      */
     content: any;
 }
+
+
+export interface AllBreakdownDataFromCategory {
+    breakdown: BreakdownData[],
+}
