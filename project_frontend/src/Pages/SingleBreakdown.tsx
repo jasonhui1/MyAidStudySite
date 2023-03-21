@@ -9,7 +9,7 @@ import { SanityFileTypes } from '../TypeScript/SanityFileTypes';
 import { BreakdownCard } from './AllBreakdown';
 
 
-export default function Breakdown() {
+export default function SingleBreakdown() {
 
     const [portableText, setPortableText] = useState<JSX.Element>()
     const { page } = useParams<string>();

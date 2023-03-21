@@ -7,7 +7,7 @@ import { BreakdownData } from '../TypeScript/BreakdownData';
 import Sidebar from '../Components/Sidebar';
 import { CategoryData, KeywordData } from '../TypeScript/InspirationData';
 
-export default function AllBreakdown() {
+export default function BreakdownCategory() {
 
     const [breakdown, setbreakdown] = useState<BreakdownData[]>([])
     const all_categories = useRef<CategoryData[]>([])
