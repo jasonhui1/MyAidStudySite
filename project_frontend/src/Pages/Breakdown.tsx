@@ -30,8 +30,6 @@ export default function Breakdown() {
     return (
         <>
             <div className=' flex flex-col justify-center items-center'>
-
-                <h1>Breakdown</h1>
                 <div className='portableText'>{portableText}</div>
             </div>
 
@@ -188,7 +186,7 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
         <>
             {React.createElement('div', {
                 onClick: () => navigate(`/breakdown/${breakdown?.title}`),
-                className: 'text-orange-700',
+                className: 'text-orange-700 inline-block',
 
             },
                 <div className='relative inline  cursor-pointer'
@@ -223,8 +221,8 @@ const components: Partial<PortableTextReactComponents> = {
     },
     list: {
         // Ex. 1: customizing common list types
-        bullet: ({ children }) => <ul className="mt-xl">{children}</ul>,
-        number: ({ children }) => <ol className="mt-lg">{children}</ol>,
+        bullet: ({ children }) => <ul className="mt-xl breakdown-ul">{children}</ul>,
+        number: ({ children }) => <ol className="mt-lg breakdown-ol">{children}</ol>,
 
         // Ex. 2: rendering custom lists
         checkmarks: ({ children }) => <ol className="m-auto text-lg">{children}</ol>,

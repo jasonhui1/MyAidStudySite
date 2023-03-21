@@ -35,7 +35,8 @@
     }
 
     ol ol {
-        list-style-type: lower-alpha
+        list-style-type: lower-alpha;
+        margin-left: 1rem;
     }
 
     ol ol ol {
@@ -85,23 +86,6 @@ body {
     white-space: pre;
 }
 
-/* 
-blockquote.twitter-tweet p{
-    display: inline-block;
-    font-family: "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 16px;
-    border-color: #eee #ddd #bbb;
-    border-radius: 5px;
-    border-style: solid;
-    border-width: 1px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    margin: 10px 5px;
-    padding: 0 16px 16px 16px;
-    max-width: 468px;
-  }
- */
 
 .twitter-tweet {
     margin: auto;
@@ -111,4 +95,44 @@ blockquote.twitter-tweet p{
     @apply after:content-[attr(data-after)] after:w-5 after:h-5 after:bg-red-200 after:rounded-full after:inline-block after:left-1/2 after:top-1/2 after:text-center after:text-sm after:translate-x-1/2
 }
 
-/* flex flex-col  justify-center items-center rounded-lg outline shadow-lg gap-3 mb-4 p-4'  */
+.breakdown-ol{
+    list-style-type: none;
+    counter-reset: apples;
+}
+
+
+.breakdown-ol:not(ol ol)
+    >li:before{
+    /* .breakdown-ol>li:not(.breakdown-ol .breakdown-ol):before{ */
+    content: counter(apples);
+    display: inline;
+    counter-increment: apples ;
+    color: black;
+    margin-right: 0.5rem;
+    font-weight: 600;
+    font-size: 2.5rem;
+}
+
+ol .breakdown-ol>li:before{
+    content: counter(apples, lower-alpha) ')';
+    display: inline;
+    counter-increment: apples ;
+    color:brown;
+    margin-right: 0.5rem;
+    font-weight: 400;
+    font-size: 2rem;
+}
+
+.breakdown-ul{
+    list-style-type: none;
+}
+
+.breakdown-ul>li:before{
+    content: ' ';
+    width: .5rem;
+    height: .5rem;
+    background-color: orange;
+    display: inline-block;
+    margin-right: 0.5rem;
+    border-radius: 9999px;
+}
