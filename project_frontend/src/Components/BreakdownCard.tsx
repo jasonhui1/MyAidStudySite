@@ -16,7 +16,7 @@ export function BreakdownCard({ data, additionalClassname = '' }: BreakdownCardP
     }
 
     return (
-        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 delay-200' + additionalClassname} onClick={handleClick}>
+        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 delay-200 ' + additionalClassname} onClick={handleClick}>
             {(image !== null) &&
                 <img src={urlFor(image)
                     .auto('format')

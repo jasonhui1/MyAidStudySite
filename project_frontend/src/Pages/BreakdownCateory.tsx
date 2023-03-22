@@ -14,6 +14,13 @@ export default function BreakdownCategory() {
     const [allCategories, setAllCategories] = useState<CategoryData[]>([])
     const { category } = useParams<string>();
 
+    useEffect(()=>{
+        const categoryQuery = getAllCategoryData()
+        client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
+            setAllCategories(categoryData)
+        });
+    }, [])
+
 
     useEffect(() => {
         if (category !== undefined) {
@@ -22,12 +29,6 @@ export default function BreakdownCategory() {
                     setbreakdown(breakdown)
                 })
         }
-
-        const categoryQuery = getAllCategoryData()
-        client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
-            setAllCategories(categoryData)
-        });
-
     }, [category])
 
     return (
@@ -43,7 +44,7 @@ export default function BreakdownCategory() {
 
                         {breakdown.length > 0 ?
                         breakdown.map((props: BreakdownData) => {
-                            return <BreakdownCard key={props._id} data={props} />
+                            return <BreakdownCard key={props._id} data={props} additionalClassname='animate-fadeIn'/>
                         }):
                         <h3 className=' col-span-3'>No breakdown yet    </h3>}
 
