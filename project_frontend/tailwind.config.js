@@ -8,7 +8,12 @@ module.exports = {
   ],
   content: ["./src/**/*.{html,js,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "primary-color": "var(--primary-color)",
+        "primary-color-hover": "var(--primary-color-hover)"
+      },
+    },
     keyframes: {
       wiggle: {
         '0%, 100%': { transform: 'rotate(-10deg)' },

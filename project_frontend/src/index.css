@@ -66,6 +66,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --primary-color: rgb(255, 237, 213);
+    --primary-color-hover: rgb(254, 215, 170);
+  }
+
 body {
     font-family: 'Lato', sans-serif;
     /* height: 100vw; */
