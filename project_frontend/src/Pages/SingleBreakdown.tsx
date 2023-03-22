@@ -181,18 +181,20 @@ const SampleInternalLinkComponent = ({ value, children }: InternalLinkComponent)
         ResetTimeout(()=>setHover(false), 300)
     }
 
+    const handleOnClickLink = ()=>{
+        navigate(`/breakdown/title/${breakdown?.title}`)
+    }
 
     return (
         <>
             {React.createElement('div', {
-                onClick: () => navigate(`/breakdown/${breakdown?.title}`),
                 className: 'text-orange-700 inline-block',
 
             },
                 <div className='relative inline  cursor-pointer'
                     onMouseOver={(e) => handleMouseOverLink(e)}
                     onMouseLeave={handleMouseOutLink}
-                    onClick={() => navigate(`/breakdown/${breakdown?.title}`)}>
+                    onClick={handleOnClickLink}>
 
                     {children}
                     {hover &&

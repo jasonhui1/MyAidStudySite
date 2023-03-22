@@ -17,8 +17,8 @@ const App = () => {
                     <Route index element={<AllBreakdown />} />
                     <Route path=':category'>
                         <Route index element={<BreakdownCategory />} />
-                        <Route path=':page' element={<SingleBreakdown />} />
                     </Route>
+                    <Route path='title/:page' element={<SingleBreakdown />} />
                 </Route>
 
                 <Route path='/inspiration'>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { client, urlFor } from '../client';
-import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getAllCategoryData, getBreakdownDataFromCategory } from '../FetchData/getdata';
 import { useParams, Link, useNavigate, useAsyncError } from 'react-router-dom'
 import { BreakdownData, AllBreakdownDataFromCategory } from '../TypeScript/BreakdownData';
@@ -14,18 +13,19 @@ export default function BreakdownCategory() {
     const [allCategories, setAllCategories] = useState<CategoryData[]>([])
     const { category } = useParams<string>();
 
-    useEffect(()=>{
+    // Get all categories
+    useEffect(() => {
         const categoryQuery = getAllCategoryData()
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
             setAllCategories(categoryData)
         });
     }, [])
 
-
+    // Get breakdown datas
     useEffect(() => {
         if (category !== undefined) {
             client.fetch(getBreakdownDataFromCategory(category))
-                .then(({breakdown}: AllBreakdownDataFromCategory) => {
+                .then(({ breakdown }: AllBreakdownDataFromCategory) => {
                     setbreakdown(breakdown)
                 })
         }
@@ -43,10 +43,10 @@ export default function BreakdownCategory() {
                     <div className='grid grid-cols-3 gap-8  justify-items-center'>
 
                         {breakdown.length > 0 ?
-                        breakdown.map((props: BreakdownData) => {
-                            return <BreakdownCard key={props._id} data={props} additionalClassname='animate-fadeIn'/>
-                        }):
-                        <h3 className=' col-span-3'>No breakdown yet    </h3>}
+                            breakdown.map((props: BreakdownData) => {
+                                return <BreakdownCard key={props._id} data={props} additionalClassname='animate-fadeIn' />
+                            }) :
+                            <h3 className=' col-span-3'>No breakdown yet    </h3>}
 
                     </div>
                 </div>

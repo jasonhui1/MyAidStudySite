@@ -11,12 +11,13 @@ export function BreakdownCard({ data, additionalClassname = '' }: BreakdownCardP
 
     const { title, description, image, keywords } = data;
     const navigate = useNavigate()
-    const handleClick = () => {
-        navigate(`${title}`)
+    const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation()
+        navigate(`/breakdown/title/${title}`)
     }
 
     return (
-        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 delay-200 ' + additionalClassname} onClick={handleClick}>
+        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 delay-200 ' + additionalClassname} onClick={(e)=>handleClick(e)}>
             {(image !== null) &&
                 <img src={urlFor(image)
                     .auto('format')
