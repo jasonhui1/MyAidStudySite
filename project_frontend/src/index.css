@@ -140,4 +140,15 @@ ol .breakdown-ol>li:before{
     display: inline-block;
     margin-right: 0.5rem;
     border-radius: 9999px;
+    
+}
+
+.origin-0{
+    transform-origin: 0% 0%
+}
+
+
+
+.center-flex{
+    @apply flex justify-center items-center
 }

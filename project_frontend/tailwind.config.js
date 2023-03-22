@@ -28,12 +28,13 @@ module.exports = {
       fadeIn: {
         '0%': {	opacity: '0%'},
         '100%': { opacity: '100%'},
-      }
+      },
     },
     animation: {
       wiggle: 'wiggle 1s ease-in-out infinite',
       fadeIn: 'fadeIn 1s ease-in-out',
       clipInLeft: 'clipInLeft 1s ease-in-out',
+      translateIn36: 'translateIn36 0.5s ease-in-out'
     }
   },
   plugins: [require("daisyui")],
