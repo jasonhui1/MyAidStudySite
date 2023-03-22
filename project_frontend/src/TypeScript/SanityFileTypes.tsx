@@ -5,5 +5,6 @@ export interface SanityFileTypes {
         };
         alt: string;
     };
-    isInline: boolean
+    isInline?: boolean
 }
+

@@ -17,7 +17,7 @@ export function BreakdownCard({ data, additionalClassname = '' }: BreakdownCardP
     }
 
     return (
-        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 delay-200 ' + additionalClassname} onClick={(e)=>handleClick(e)}>
+        <div className={'card shadow-lg cursor-pointer rounded-3xl  bg-orange-100 hover:bg-orange-200 hover:scale-105 duration-1000 ' + additionalClassname} onClick={(e)=>handleClick(e)}>
             {(image !== null) &&
                 <img src={urlFor(image)
                     .auto('format')
@@ -32,7 +32,7 @@ export function BreakdownCard({ data, additionalClassname = '' }: BreakdownCardP
                 <h4> {description}</h4>
                 <h6 className=' font-bold'> Keywords</h6>
                 <ul>
-                    {keywords.map((word: string, i: number) => {
+                    {keywords?.map((word: string, i: number) => {
                         return <li key={i}>{word}</li>
                     })}
                 </ul>

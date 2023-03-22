@@ -48,6 +48,16 @@ export function getBreakdownDataFromCategory(category: string): string {
     return query
 }
 
+export function getBreakdownImageFirstX(x:number) {
+    const query = `*[_type == "breakdown"] 
+        {
+            title,
+            image
+        }[0..${x}]`
+    return query
+}
+
+
 
 export function getAllKeywordData(): string {
     const query = `*[_type == "keyword"] { word } ['word']`
@@ -233,8 +243,6 @@ const mapping = {
 
 
 export const searchInspirationQuery = (searchTerm: string, normalkeys: string[], keywords: string[] = [], artists: string[] = [], category: string = ''): string => {
-
-
     normalkeys = arrayMapping(normalkeys, mapping)
 
     // Search through all words with space between them

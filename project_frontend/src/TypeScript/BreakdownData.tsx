@@ -1,20 +1,19 @@
-import { inspiration_data } from '../Data/inspiration_data';
-import { InspirationData, KeywordData } from './InspirationData';
+import { InspirationData } from './InspirationData';
 import { SanityFileTypes } from './SanityFileTypes';
 
 
 export interface BreakdownData {
-    _id: string,
-    description: string,
+    _id?: string,
+    description?: string,
     image?: SanityFileTypes,
-    keywords: string[],
+    keywords?: string[],
     inspiration_data?: InspirationData[]
-    title: string,
+    title?: string,
 
     /**
      * content of the block.
      */
-    content: any;
+    content?: any;
 }
 
 
