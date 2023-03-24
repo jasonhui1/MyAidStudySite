@@ -62,8 +62,6 @@ export default function Home() {
     const hoveringPage = pages[Object.keys(pages)[hoveringIndex]]
     const galleyPhotoClassNames = ['right-12 top-12', 'right-3/4 top-16', 'left-12 bottom-12', 'right-18 bottom-1/4']
 
-    console.log('rendering')
-
     useEffect(() => {
         const categoryQuery = getAllCategoryData()
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {

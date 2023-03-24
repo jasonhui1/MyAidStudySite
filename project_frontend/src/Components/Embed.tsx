@@ -30,24 +30,26 @@ interface EmbedProp {
 
 // const MemoizedMyEmbed = React.memo(MyEmbed);
 
-export default  function InspirationEmbed({ _id, title = '', artist, keywords, embedURL }: EmbedProp): JSX.Element {
+type media = 'Youtube' | 'Twitter'
+
+export default function InspirationEmbed({ _id, title = '', artist, keywords, embedURL }: EmbedProp): JSX.Element {
 
     let embedBlock;
     //Turn {id, name} to only name
     let keywordList = keywords.map(keyword => keyword.word);
 
-    if (embedURL.includes('twitter')) {
-        const postId = embedURL.split('/').pop()
-        if (postId !== undefined) {
-            embedBlock = <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
-        }
 
-    } else if (embedURL.includes('youtube')) {
-        const postId = embedURL.split('?v=').pop()?.split('&')[0]
-        if (postId !== undefined) {
-            const URL = 'https://www.youtube.com/embed/' + postId
-            embedBlock = <YoutubeEmbed key={postId} src={URL} />
-        }
+    let embed: media;
+    let postId: string | undefined;
+
+
+    if (embedURL.includes('twitter')) {
+        embed = 'Twitter'
+        postId = embedURL.split('/').pop()
+
+    } else {
+        embed = 'Youtube'
+        postId = embedURL.split('?v=').pop()?.split('&')[0]
     }
 
     return (
@@ -59,7 +61,12 @@ export default  function InspirationEmbed({ _id, title = '', artist, keywords, e
 
                     </span>
                 </h4>
-                {embedBlock}
+                {postId !== undefined && ((embed === 'Youtube') ? (
+                    <YoutubeEmbed key={postId} src={'https://www.youtube.com/embed/' + postId} />
+                ) : (
+                    <TwitterVideoEmbed key={postId} id={postId} className='w-full mx-auto' />
+                ))}
+
             </div>
         </>
     )
