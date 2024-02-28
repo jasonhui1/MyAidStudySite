@@ -7,102 +7,15 @@ import { Routes, Route, useNavigate, Link } from 'react-router-dom'
 import { IoMdAdd, IoMdCloseCircle, IoMdSearch } from 'react-icons/io';
 import { searchInspirationQuery, getAllKeywordData, getAllCategoryData, getAllArtistData } from '../FetchData/getdata';
 import { client } from '../client';
-import { InspirationCategory } from './Inspirations_category';
+import {InspirationCategory } from './Inspirations_category';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
 import { InspirationData, CategoryData } from '../TypeScript/InspirationData';
 import Sidebar from '../Components/Sidebar';
 import Search from '../Components/Search';
+import AllKeywordsCheckBoxes from '../Components/Inspiration/AllKeywordsCheckBoxes';
+import AllArtistsCheckBoxes from '../Components/Inspiration/AllArtistsCheckBoxes';
 
-
-interface AllArtistsCheckBoxesProps {
-    artists: string[],
-    artistCheckState: boolean[],
-    setArtistCheckState: React.Dispatch<React.SetStateAction<boolean[]>>
-}
-
-function AllArtistsCheckBoxes({ artists, artistCheckState, setArtistCheckState }: AllArtistsCheckBoxesProps): JSX.Element {
-
-    const handleArtistCheckbox = ((index: number): void => {
-        //Maybe I want to select a range of all_artists later, currently the query only checks for AND
-        const updatedArtistCheckState = artistCheckState.map((check, i) =>
-            i === index ? !check : check
-        );
-        setArtistCheckState(updatedArtistCheckState);
-    })
-
-
-    return (
-        <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
-            {artists.map((name: string, i: number) => {
-                return (
-                    <CheckBox key={i} value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} />
-                )
-            })}
-        </div>
-    )
-}
-
-interface AllKeywordsCheckBoxesProps {
-    all_categories: CategoryData[],
-    keywordCheckState: boolean[][],
-    categoriesCheckState: boolean[],
-    
-    setKeywordCheckState: React.Dispatch<React.SetStateAction<boolean[][]>>
-    setCategoryCheckState: React.Dispatch<React.SetStateAction<boolean[]>>
-    
-}
-
-function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, categoriesCheckState, setKeywordCheckState, setCategoryCheckState }: AllKeywordsCheckBoxesProps) {
-
-    const handleCategoryCheckbox = ((index: number): void => {
-        const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
-            i === index ? !check : check
-        );
-        const isChecked = updatedCategoriesCheckState[index]
-        setCategoryCheckState(updatedCategoriesCheckState)
-
-        //Checks/ unchecks all related keywords
-        const updatedKeywordCheckState = keywordCheckState.map((row, i) => {
-            if (!(i === index)) return row
-
-            return row.map((_) => isChecked)
-        });
-        setKeywordCheckState(updatedKeywordCheckState);
-
-    })
-
-    const handleKeywordCheckbox = ((i: number, j: number): void => {
-        const updatedKeywordCheckState = keywordCheckState.map((row, current_i) => {
-            if (!(current_i === i)) return row
-            return row.map((cell, current_j) => (j === current_j ? !cell : cell))
-        });
-
-        setKeywordCheckState(updatedKeywordCheckState);
-    })
-    return (
-        <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
-            {(
-                all_categories.map(({ word, keywords }: CategoryData, i: number) => {
-                    return (
-                        <>
-                            <div>
-                                <h3 className=' font-bold'>{word}</h3>
-                                <CheckBox value={word} onChange={() => handleCategoryCheckbox(i)} check={categoriesCheckState[i]} />
-                                <hr className=' bg-black' />
-                                <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
-                                    {keywords.map((keyword, j) => {
-                                        return <CheckBox value={keyword} onChange={() => handleKeywordCheckbox(i, j)} check={keywordCheckState[i][j]} />
-                                    })}
-                                </div>
-                            </div>
-                        </>
-                    )
-                }))}
-        </div>
-
-    )
-}
 
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -160,7 +73,6 @@ export function Inspiration() {
 
                         {openAdvSetting &&
                             <div className='flex flex-col gap-2'>
-
                                 <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} />
                                 <AllKeywordsCheckBoxes all_categories={all_categories} keywordCheckState={keywordCheckState} categoriesCheckState={categoriesCheckState}  setKeywordCheckState={setKeywordCheckState}  setCategoryCheckState={setCategoryCheckState} />
 
