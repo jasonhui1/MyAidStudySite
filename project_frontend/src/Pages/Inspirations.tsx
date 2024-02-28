@@ -18,10 +18,20 @@ import Search from '../Components/Search';
 interface AllArtistsCheckBoxesProps {
     artists: string[],
     artistCheckState: boolean[],
-    handleArtistCheckbox: (index: number) => void
+    setArtistCheckState: React.Dispatch<React.SetStateAction<boolean[]>>
 }
 
-function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistCheckState }: AllArtistsCheckBoxesProps): JSX.Element {
+function AllArtistsCheckBoxes({ artists, artistCheckState, setArtistCheckState }: AllArtistsCheckBoxesProps): JSX.Element {
+
+    const handleArtistCheckbox = ((index: number): void => {
+        //Maybe I want to select a range of all_artists later, currently the query only checks for AND
+        const updatedArtistCheckState = artistCheckState.map((check, i) =>
+            i === index ? !check : check
+        );
+        setArtistCheckState(updatedArtistCheckState);
+    })
+
+
     return (
         <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
             {artists.map((name: string, i: number) => {
@@ -36,14 +46,40 @@ function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistCheckState 
 interface AllKeywordsCheckBoxesProps {
     all_categories: CategoryData[],
     keywordCheckState: boolean[][],
-    handleKeywordCheckbox: (i: number, j: number) => void,
-
     categoriesCheckState: boolean[],
-    handleCategoryCheckbox: (index: number) => void
-
+    
+    setKeywordCheckState: React.Dispatch<React.SetStateAction<boolean[][]>>
+    setCategoryCheckState: React.Dispatch<React.SetStateAction<boolean[]>>
+    
 }
 
-function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, handleKeywordCheckbox, categoriesCheckState, handleCategoryCheckbox }: AllKeywordsCheckBoxesProps) {
+function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, categoriesCheckState, setKeywordCheckState, setCategoryCheckState }: AllKeywordsCheckBoxesProps) {
+
+    const handleCategoryCheckbox = ((index: number): void => {
+        const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
+            i === index ? !check : check
+        );
+        const isChecked = updatedCategoriesCheckState[index]
+        setCategoryCheckState(updatedCategoriesCheckState)
+
+        //Checks/ unchecks all related keywords
+        const updatedKeywordCheckState = keywordCheckState.map((row, i) => {
+            if (!(i === index)) return row
+
+            return row.map((_) => isChecked)
+        });
+        setKeywordCheckState(updatedKeywordCheckState);
+
+    })
+
+    const handleKeywordCheckbox = ((i: number, j: number): void => {
+        const updatedKeywordCheckState = keywordCheckState.map((row, current_i) => {
+            if (!(current_i === i)) return row
+            return row.map((cell, current_j) => (j === current_j ? !cell : cell))
+        });
+
+        setKeywordCheckState(updatedKeywordCheckState);
+    })
     return (
         <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
             {(
@@ -68,25 +104,20 @@ function AllKeywordsCheckBoxes({ all_categories, keywordCheckState, handleKeywor
     )
 }
 
-// function Radio({ value, onChange }) {
-//     return (
-//         <label>
-//             <input type="radio" name="artist_name" value={value} onChange={onChange} /> {value}
-//         </label>
-//     )
-// }
-
-
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [keys, setKeys] = useState<string[]>(['title'])
     const [inspirationData, setInspirationData] = useState<InspirationData[]>([])
     const [test, setTest] = useState<number>(0)
+    const [openAdvSetting, setOpenAdvSetting] = useState(true)
 
-    const [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, all_keywords, all_categories, all_artists] = useInitialFetch()
     // Get initial data
-    const [handleAddClick, handleRemoveClick] = handleKeys(keys, setKeys)
-    const [handleCategoryCheckbox, handleKeywordCheckbox, handleArtistCheckbox] = handleCheckboxes(keywordCheckState, setKeywordCheckState, categoriesCheckState, setCategoriesCheckState, artistCheckState, setArtistCheckState)
+    const [
+        keywordCheckState, setKeywordCheckState,
+        artistCheckState, setArtistCheckState,
+        categoriesCheckState, setCategoryCheckState,
+        all_keywords, all_categories, all_artists
+    ] = useInitialFetch()
 
     //Update Search
     useEffect(() => {
@@ -106,17 +137,9 @@ export function Inspiration() {
     // Check category if all sub keywords are checked
     useEffect(() => {
         const updatedCategoriesCheckState = keywordCheckState.map((array: boolean[]) => (array.every((isChecked) => isChecked)))
-        setCategoriesCheckState(updatedCategoriesCheckState)
+        setCategoryCheckState(updatedCategoriesCheckState)
 
     }, [keywordCheckState]);
-
-
-    // const handleTest = (() => {
-    //     console.log('test', test)
-    //     setTest(test => test + 1);
-    // })
-
-    // console.log('rending')
 
     return (
         <>
@@ -124,25 +147,25 @@ export function Inspiration() {
             <div className=''>
                 <div className='flex gap-5'>
 
-                    <Sidebar all_categories={all_categories} path='./'/>
+                    <Sidebar all_categories={all_categories} path='./' />
                     <div className='mt-4 container mx-auto'>
-                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+                        <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-                        <div className='flex gap-2 mb-2'>
-                            {/* Handle add button */}
-                            {/* TODO: - use a loop */}
+                        {/* <div className='flex gap-2 mb-2'>
                             <button className=' btn rounded-lg' onClick={() => handleAddClick('title')}> Title </button>
                             <button className=' btn rounded-lg' onClick={() => handleAddClick('artist')}> Artist </button>
+                        </div> */}
 
-                        </div>
+                        <button className='btn btn-outline' onClick={() => setOpenAdvSetting(!openAdvSetting)}>open advance search</button>
 
-                        Advance Setting
-                        <div className='flex flex-col gap-2'>
+                        {openAdvSetting &&
+                            <div className='flex flex-col gap-2'>
 
-                            <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} handleArtistCheckbox={handleArtistCheckbox} />
-                            <AllKeywordsCheckBoxes all_categories={all_categories} keywordCheckState={keywordCheckState} handleKeywordCheckbox={handleKeywordCheckbox} categoriesCheckState={categoriesCheckState} handleCategoryCheckbox={handleCategoryCheckbox} />
+                                <AllArtistsCheckBoxes artists={all_artists} artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} />
+                                <AllKeywordsCheckBoxes all_categories={all_categories} keywordCheckState={keywordCheckState} categoriesCheckState={categoriesCheckState}  setKeywordCheckState={setKeywordCheckState}  setCategoryCheckState={setCategoryCheckState} />
 
-                        </div>
+                            </div>
+                        }
 
                         {true &&
                             <MasonryLayout data={inspirationData} />
@@ -164,7 +187,7 @@ function useInitialFetch():
     ] {
     const [keywordCheckState, setKeywordCheckState] = useState<boolean[][]>([[]]);
     const [artistCheckState, setArtistCheckState] = useState<boolean[]>([]);
-    const [categoriesCheckState, setCategoriesCheckState] = useState<boolean[]>([]);
+    const [categoriesCheckState, setCategoryCheckState] = useState<boolean[]>([]);
 
     let keywords = useRef<string[][]>([])
     let categories = useRef<CategoryData[]>([]);
@@ -181,7 +204,7 @@ function useInitialFetch():
         client.fetch(categoryQuery).then((categoryData: CategoryData[]) => {
             categories.current = categoryData
 
-            setCategoriesCheckState(new Array(categoryData.length).fill(false))
+            setCategoryCheckState(new Array(categoryData.length).fill(false))
 
             keywords.current = categoryData.map((row) => (row['keywords']))
             const two_d_array = new Array(categoryData.length).fill([]).map((row, i) => new Array(categoryData[i].keywords.length).fill(false))
@@ -190,7 +213,7 @@ function useInitialFetch():
 
     }, []);
 
-    return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoriesCheckState, keywords.current, categories.current, artists.current]
+    return [keywordCheckState, setKeywordCheckState, artistCheckState, setArtistCheckState, categoriesCheckState, setCategoryCheckState, keywords.current, categories.current, artists.current]
 }
 
 function handleKeys(keys: string[], setKeys: React.Dispatch<React.SetStateAction<string[]>>) {
@@ -214,7 +237,7 @@ function handleCheckboxes(
     keywordCheckState: boolean[][],
     setKeywordCheckState: React.Dispatch<React.SetStateAction<boolean[][]>>,
     categoriesCheckState: boolean[],
-    setCategoriesCheckState: React.Dispatch<React.SetStateAction<boolean[]>>,
+    setCategoryCheckState: React.Dispatch<React.SetStateAction<boolean[]>>,
     artistCheckState: boolean[],
     setArtistCheckState: React.Dispatch<React.SetStateAction<boolean[]>>
 ): [(index: number) => void, (i: number, j: number) => void, (index: number) => void] {
@@ -224,7 +247,7 @@ function handleCheckboxes(
             i === index ? !check : check
         );
         const isChecked = updatedCategoriesCheckState[index]
-        setCategoriesCheckState(updatedCategoriesCheckState)
+        setCategoryCheckState(updatedCategoriesCheckState)
 
         //Checks/ unchecks all related keywords
         const updatedKeywordCheckState = keywordCheckState.map((row, i) => {

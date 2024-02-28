@@ -9,7 +9,7 @@ interface ArrayOf<T>{
 
 export default function Sidebar({all_categories, path} :ArrayOf<CategoryData>) {
     return (
-        <nav className='flex flex-col h-screen top-0 gap-4 px-5 bg-slate-700 h-full sticky '>
+        <nav className='flex flex-col h-screen top-0 gap-4 px-5 bg-slate-700 sticky '>
             <div>
                 <h2 className=' text-gray-200 my-6'>Categories</h2>
             </div>

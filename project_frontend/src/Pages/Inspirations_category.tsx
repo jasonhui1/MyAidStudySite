@@ -38,13 +38,11 @@ export function AllArtistsCheckBoxes({ artists, handleArtistCheckbox, artistChec
         <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
             {artists.map(({ name, count }: ArtistData, i: number) => {
                 return (
-                    <>
-                        <div className='relative '>
+                    <div className='relative '>
 
-                            <CheckBox key={i} value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} after={count} className={`checkbox-count`} />
-                            {/* <span className='absolute bottom-0 right-5 w-10 h-10 bg-white rounded-full flex justify-center items-center'>{count}</span> */}
-                        </div>
-                    </>
+                        <CheckBox key={i} value={name} onChange={() => handleArtistCheckbox(i)} check={artistCheckState[i]} after={count} className={`checkbox-count`} />
+                        {/* <span className='absolute bottom-0 right-5 w-10 h-10 bg-white rounded-full flex justify-center items-center'>{count}</span> */}
+                    </div>
                 )
             })}
         </div>
@@ -64,7 +62,7 @@ function AllKeywordsCheckBoxes({ keywords, keywordCheckState, handleKeywordCheck
                 <div className='grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4 '>
                     {keywords.map(({ word, count }: KeywordData, i: number) => {
                         return (
-                            <CheckBox key={i} value={word} onChange={() => handleKeywordCheckbox(i)} check={keywordCheckState[i]} after={count} className={`checkbox-count`}  />
+                            <CheckBox key={i} value={word} onChange={() => handleKeywordCheckbox(i)} check={keywordCheckState[i]} after={count} className={`checkbox-count`} />
                         )
                     })}
                 </div>
