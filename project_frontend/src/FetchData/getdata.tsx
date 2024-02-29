@@ -242,8 +242,9 @@ const mapping = {
 }
 
 
-export const searchInspirationQuery = (searchTerm: string, normalkeys: string[], keywords: string[] = [], artists: string[] = [], category: string = ''): string => {
-    normalkeys = arrayMapping(normalkeys, mapping)
+export const searchInspirationQuery = (searchTerm: string, keywords: string[] = [], artists: string[] = [], category: string = ''): string => {
+    let normalKeys = ['title', 'artist']
+    normalKeys = arrayMapping(normalKeys, mapping)
 
     // Search through all words with space between them
     let searchArray = searchTerm.split(' ').filter(i => i)
@@ -262,7 +263,7 @@ export const searchInspirationQuery = (searchTerm: string, normalkeys: string[],
 
     //Match search words, keywords[]->word is in a different space because its an array (thats how GROQ works, deal with it)
     if (searchArray.length > 0) {
-        let filterRestOfKeys = searchArray?.map(item => `([${normalkeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
+        let filterRestOfKeys = searchArray?.map(item => `([${normalKeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
         filterRestOfKeys = `(${filterRestOfKeys})`
         filter.push(filterRestOfKeys)
     }
