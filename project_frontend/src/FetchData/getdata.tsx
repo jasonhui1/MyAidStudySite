@@ -185,10 +185,10 @@ export function searchQueryThroughCategory(
         {
             'inspirations':* [${combinedFilters}] {
                 _id,
-                    title,
-                    'artist': artist -> { name }.name,
-                        embedURL,
-                        keywords[] -> { _id, word }
+                title,
+                embedURL,
+                keywords[]->{word, 'category':category->word},
+                artist->{name,'category':category->word}
             } ,
         } `
     return query

@@ -16,81 +16,97 @@ import Search from '../Components/Search';
 import AllKeywordsCheckBoxes from '../Components/Inspiration/AllKeywordsCheckBoxes';
 import AllArtistsCheckBoxes from '../Components/Inspiration/AllArtistsCheckBoxes';
 import { fetchArtistData, fetchCategoryData, fetchInspirationData } from '../FetchData/api';
+import { isEqual } from 'lodash'; // Import the isEqual function from lodash library
 
+
+export type CheckboxState = {
+    [category: string]: {
+        [word: string]: {
+            checked: boolean;
+            count: number;
+        };
+    };
+};
+
+type searchProps = {
+    searchTerm: string,
+    keywords: string[]
+    artists: string[]
+}
 
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [inspirationData, setInspirationData] = useState<InspirationData[]>([])
     const [test, setTest] = useState<number>(0)
-    const [openAdvSetting, setOpenAdvSetting] = useState(true)
-    const [initial, setInitial] = useState(true)
 
-    // Get initial data
-    const [
-        keywordCheckState, setKeywordCheckState,
-        artistCheckState, setArtistCheckState,
-        categoriesCheckState, setCategoryCheckState,
-        allKeywords, setAllKeywords,
-        allCategories, setAllCategories,
-        allArtists, setAllArtists
-    ] = useInitialFetch()
+    const [keywordCheckState, setKeywordCheckState] = useState<CheckboxState>({});
+    const [artistCheckState, setArtistCheckState] = useState<CheckboxState>({});
+    // const [categoriesCheckState, setCategoryCheckState] = useState<boolean[]>([]);
+
+    const [openAdvSetting, setOpenAdvSetting] = useState(true)
+    const initialUpdateRef = useRef(false); // Use useRef for flag
+    const lastUpdateRef = useRef<searchProps>(); // Use useRef for flag
 
     //Update Search
     useEffect(() => {
         const updateInspriationData = async () => {
             const data = await fetchInspirationData('shader', searchTerm, selectedKeywords, selectedArtists)
-            if (initial) {
-                if (allArtists.length !== 0) {
-                    const count_artists = CountAndSortArray(data.map(({ artist }) => artist))
-                    console.log('count_artists :>> ', count_artists);
-                    console.log('allArtists :>> ', allArtists);
+            setInspirationData(data)
+            console.log('data :>> ', data);
 
-                    // Update filters count for artists
-                    setAllArtists(prevArtists => {
-                        return prevArtists.map(artist => {
-                            const count = count_artists.find(([target]) => target === artist.name)?.[1] || 0;
-                            return { ...artist, count };
-                        });
+            setArtistCheckState(prevState => {
+                let newState = { ...prevState }; // Copy previous state
+                if (initialUpdateRef.current) {
+                    data.forEach(({ artist }) => {
+                        const { name, category } = artist
+                        const defaultState = { checked: false, count: 0 };
+                        const prevState = newState[category]?.[name] || defaultState;
+
+                        newState[category] = {
+                            ...(newState[category] || {}),
+                            [name]: {
+                                checked: prevState.checked,
+                                count: prevState.count + 1
+                            }
+                        };
                     });
-                    setInitial(false)
+                    initialUpdateRef.current = false;
                 }
-            }
-
-            // Update filters count for keywords
-            const stack_keywords: string[] = [];
-            data.forEach(({ keywords }) => keywords.forEach(({ word }) => stack_keywords.push(word)));
-            const count_keywords = CountAndSortArray(stack_keywords);
-
-            setAllKeywords(prevKeywords => {
-                return prevKeywords.map(row =>
-                    row.map(keyword => {
-                        const count = count_keywords.find(([target]) => target === keyword.word)?.[1] || 0;
-                        return { ...keyword, count };
-                    })
-                );
+                return newState; // Return the new state
             });
 
-            console.log('fetched data :>> ', data);
-            setInspirationData(data)
+            setKeywordCheckState(prevState => {
+                let newState = {} as CheckboxState; // Copy previous state
+                data.forEach(({ keywords }) => {
+                    keywords.forEach(({ word, category }) => {
+                        const checked = prevState[category]?.[word]?.checked || false;
+                        const prevCount = newState[category]?.[word]?.count || 0;
+
+                        newState[category] = {
+                            ...(newState[category] || {}),
+                            [word]: {
+                                checked: checked,
+                                count: prevCount + 1
+                            }
+                        };
+                    });
+                });
+                return newState; // Return the new state
+            });
         }
 
-        console.log('querying')
-        const all_artists_name = allArtists.map(({ name }: ArtistData) => name)
-        const selectedKeywords =
-            allKeywords.flat().filter((_: any, i: number) => keywordCheckState.flat()[i])
-                .map(({ word }: KeywordData) => word)
+        const selectedKeywords = getSelectedCheckbox(keywordCheckState)
+        const selectedArtists = getSelectedCheckbox(artistCheckState)
 
-        const selectedArtists = all_artists_name.filter((_: any, i: number) => artistCheckState[i])
-        updateInspriationData()
+        // Only update if search props changed, to prevernt infinite loop
+        const currentSearchProps = { searchTerm, keywords: selectedKeywords, artists: selectedArtists }
+        if (!lastUpdateRef.current || !isEqual(lastUpdateRef.current, currentSearchProps)) {
+            console.log('querying')
+            lastUpdateRef.current = currentSearchProps;
+            updateInspriationData()
+        }
 
     }, [searchTerm, keywordCheckState, artistCheckState]);
-
-    // Check category if all sub keywords are checked
-    useEffect(() => {
-        const updatedCategoriesCheckState = keywordCheckState.map((array: boolean[]) => (array.every((isChecked) => isChecked)))
-        setCategoryCheckState(updatedCategoriesCheckState)
-
-    }, [keywordCheckState]);
 
     return (
         <>
@@ -98,7 +114,7 @@ export function Inspiration() {
             <div className=''>
                 <div className='flex gap-5'>
 
-                    <Sidebar all_categories={allCategories} path='./' />
+                    {/* <Sidebar all_categories={allCategories} path='./' /> */}
                     <div className='mt-4 container mx-auto'>
                         <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
@@ -106,9 +122,8 @@ export function Inspiration() {
 
                         {openAdvSetting &&
                             <div className='flex flex-col gap-2'>
-                                <AllArtistsCheckBoxes artists={allArtists} artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} />
-                                <AllKeywordsCheckBoxes all_categories={allCategories} all_keywords={allKeywords} keywordCheckState={keywordCheckState} categoriesCheckState={categoriesCheckState} setKeywordCheckState={setKeywordCheckState} setCategoryCheckState={setCategoryCheckState} />
-
+                                {/* <AllArtistsCheckBoxes artists={allArtists} artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} /> */}
+                                <AllKeywordsCheckBoxes keywordCheckState={keywordCheckState} setKeywordCheckState={setKeywordCheckState} />
                             </div>
                         }
 
@@ -123,6 +138,16 @@ export function Inspiration() {
         </>
     )
 }
+
+const getSelectedCheckbox = (keywordCheckState: CheckboxState) => {
+    // Loop through to filter checked
+    return Object.entries(keywordCheckState)
+        .flatMap(([_, words]) =>
+            Object.entries(words)
+                .filter(([_, { checked }]) => checked)
+                .map(([word]) => word)
+        );
+};
 
 interface ArrayItemCount {
     [key: string]: number,
@@ -155,56 +180,56 @@ function findIndexes2D<T>(array: T[][], propName: keyof T, targetName: string) {
 }
 
 
-function useInitialFetch():
-    [
-        boolean[][], React.Dispatch<React.SetStateAction<boolean[][]>>,
-        boolean[], React.Dispatch<React.SetStateAction<boolean[]>>,
-        boolean[], React.Dispatch<React.SetStateAction<boolean[]>>,
-        KeywordData[][], React.Dispatch<React.SetStateAction<KeywordData[][]>>,
-        CategoryData[], React.Dispatch<React.SetStateAction<CategoryData[]>>,
-        ArtistData[], React.Dispatch<React.SetStateAction<ArtistData[]>>,
-    ] {
-    const [keywordCheckState, setKeywordCheckState] = useState<boolean[][]>([[]]);
-    const [artistCheckState, setArtistCheckState] = useState<boolean[]>([]);
-    const [categoriesCheckState, setCategoryCheckState] = useState<boolean[]>([]);
+// function useInitialFetch():
+//     [
+//         boolean[][], React.Dispatch<React.SetStateAction<boolean[][]>>,
+//         boolean[], React.Dispatch<React.SetStateAction<boolean[]>>,
+//         boolean[], React.Dispatch<React.SetStateAction<boolean[]>>,
+//         KeywordData[][], React.Dispatch<React.SetStateAction<KeywordData[][]>>,
+//         CategoryData[], React.Dispatch<React.SetStateAction<CategoryData[]>>,
+//         ArtistData[], React.Dispatch<React.SetStateAction<ArtistData[]>>,
+//     ] {
+//     const [keywordCheckState, setKeywordCheckState] = useState<boolean[][]>([[]]);
+//     const [artistCheckState, setArtistCheckState] = useState<boolean[]>([]);
+//     const [categoriesCheckState, setCategoryCheckState] = useState<boolean[]>([]);
 
-    const [allKeywords, setAllKeywords] = useState<KeywordData[][]>([[]]);
-    const [allCategories, setAllCategories] = useState<CategoryData[]>([]);
-    const [allArtists, setAllArtists] = useState<ArtistData[]>([]);
+//     const [allKeywords, setAllKeywords] = useState<KeywordData[][]>([[]]);
+//     const [allCategories, setAllCategories] = useState<CategoryData[]>([]);
+//     const [allArtists, setAllArtists] = useState<ArtistData[]>([]);
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const [artistData, [categoryData, keywordsData]] = await Promise.all([
-                fetchArtistData(),
-                fetchCategoryData()
-            ]);
+//     useEffect(() => {
+//         const fetchData = async () => {
+//             const [artistData, [categoryData, keywordsData]] = await Promise.all([
+//                 fetchArtistData(),
+//                 fetchCategoryData()
+//             ]);
 
-            // Add the current word count
-            setAllArtists(artistData.map(name => ({ name, count: 0 })))
-            setAllCategories(categoryData)
-            setAllKeywords(keywordsData.map(row => row.map(word => ({ word, count: 0 }))))
+//             // Add the current word count
+//             setAllArtists(artistData.map(name => ({ name, count: 0 })))
+//             setAllCategories(categoryData)
+//             setAllKeywords(keywordsData.map(row => row.map(word => ({ word, count: 0 }))))
 
-            // Set checkboxes
-            setArtistCheckState(new Array(artistData.length).fill(false))
-            setCategoryCheckState(new Array(categoryData.length).fill(false))
+//             // Set checkboxes
+//             setArtistCheckState(new Array(artistData.length).fill(false))
+//             setCategoryCheckState(new Array(categoryData.length).fill(false))
 
-            //Create an empty 2d array (no keywords are currently checked)
-            const two_d_array = new Array(categoryData.length).fill([]).map((_, i) => new Array(categoryData[i].keywords.length).fill(false))
-            setKeywordCheckState(two_d_array)
+//             //Create an empty 2d array (no keywords are currently checked)
+//             const two_d_array = new Array(categoryData.length).fill([]).map((_, i) => new Array(categoryData[i].keywords.length).fill(false))
+//             setKeywordCheckState(two_d_array)
 
-        }
-        fetchData();
+//         }
+//         fetchData();
 
-    }, []);
+//     }, []);
 
-    return [
-        keywordCheckState, setKeywordCheckState,
-        artistCheckState, setArtistCheckState,
-        categoriesCheckState, setCategoryCheckState,
-        allKeywords, setAllKeywords,
-        allCategories, setAllCategories,
-        allArtists, setAllArtists
-    ]
-}
+//     return [
+//         keywordCheckState, setKeywordCheckState,
+//         artistCheckState, setArtistCheckState,
+//         categoriesCheckState, setCategoryCheckState,
+//         allKeywords, setAllKeywords,
+//         allCategories, setAllCategories,
+//         allArtists, setAllArtists
+//     ]
+// }
 

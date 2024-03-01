@@ -1,10 +1,14 @@
 export interface InspirationData {
     _id: string,
     title: string;
-    artist: string;
-    keywords: Array<{
+    artist: {
+        name:string
+        category:string
+    }
+    keywords: {
         word: string
-    }>
+        category:string
+    }[]
     embedURL: string
 }
 

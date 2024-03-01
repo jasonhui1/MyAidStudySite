@@ -8,13 +8,12 @@ type media = 'Youtube' | 'Twitter'
 interface EmbedProp {
     _id: string;
     title: string;
-    artist: string;
     keywords: Array<{
         word: string
     }>
     embedURL: string
 }
-export default function InspirationEmbed({ _id, title = '', artist, keywords, embedURL }: EmbedProp): JSX.Element {
+export default function InspirationEmbed({ _id, title = '', keywords, embedURL }: EmbedProp): JSX.Element {
 
     let keywordList = keywords.map(keyword => keyword.word);
 

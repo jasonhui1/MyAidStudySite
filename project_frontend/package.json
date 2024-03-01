@@ -16,6 +16,7 @@
     "@types/react-dom": "^18.0.11",
     "daisyui": "^2.51.3",
     "html-react-parser": "^3.0.12",
+    "lodash": "^4.17.21",
     "nth-check": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -52,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.202",
     "source-map-loader": "^4.0.1",
     "tailwindcss": "^3.2.7",
     "tailwindcss-animate": "^1.0.5",
