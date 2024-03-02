@@ -9,23 +9,18 @@ interface KeywordsCheckBoxesProps {
 }
 
 export default function KeywordsCheckBoxes({ keywordCheckState, setKeywordCheckState }: KeywordsCheckBoxesProps) {
+    const handleCategoryCheckbox = ((category: string) => {
+        //Checks/ unchecks all related keywords
+        const all_checked = Object.values(keywordCheckState[category]).every(word => word.checked)
 
-    // const handleCategoryCheckbox = ((index: number): void => {
-    //     const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
-    //         i === index ? !check : check
-    //     );
-    //     const isChecked = updatedCategoriesCheckState[index]
-    //     setCategoryCheckState(updatedCategoriesCheckState)
-
-    //     //Checks/ unchecks all related keywords
-    //     const updatedKeywordCheckState = keywordCheckState.map((row, i) => {
-    //         if (!(i === index)) return row
-
-    //         return row.map((_) => isChecked)
-    //     });
-    //     setKeywordCheckState(updatedKeywordCheckState);
-
-    // })
+        setKeywordCheckState(prevState => {
+            const newState = { ...prevState };
+            Object.keys(newState[category]).forEach(word => {
+                newState[category][word] = { ...newState[category][word], checked: !all_checked };
+            });
+            return newState;
+        });
+    })
 
     const handleKeywordCheckbox = ((category: string, word: string): void => {
         setKeywordCheckState(prevState => {
@@ -37,19 +32,14 @@ export default function KeywordsCheckBoxes({ keywordCheckState, setKeywordCheckS
     })
 
     return (
-        <div className='grid grid-cols-3 justify-start gap-4 outline p-2 '>
+        <div className='grid grid-cols-3 justify-start gap-4 outline p-2'>
             {Object.keys(keywordCheckState).map((category, i) => {
+                const words = keywordCheckState[category]
                 return (
-                    <div key={i}>
-                        {/* <CheckBox value={category} onChange={() => handleCategoryCheckbox(category)} check={categoriesCheckState[i]} />
+                    <div key={i} className="">
+                        <CheckBox value={category} onChange={() => handleCategoryCheckbox(category)} check={Object.values(words).every(word => word.checked)} />
                         <hr className=' bg-black' />
-                        <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
-                            {all_keywords[i].map(({ word, count }: KeywordData, j) => {
-                                if (count === 0) return <></>
-                                return <CheckBox key={j} value={word} onChange={() => handleKeywordCheckbox(i, j)} check={keywordCheckState[i][j]} after={count} className={`checkbox-count`} />
-                            })}
-                        </div> */}
-                        <KeywordCheckboxes category={category} keywords={keywordCheckState[category]} handleKeywordCheckbox={handleKeywordCheckbox} />
+                        <KeywordCheckboxes category={category} keywords={words} handleKeywordCheckbox={handleKeywordCheckbox} />
                     </div>
                 )
             })}

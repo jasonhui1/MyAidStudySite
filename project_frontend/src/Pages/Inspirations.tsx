@@ -50,7 +50,7 @@ export function Inspiration() {
     //Update Search
     useEffect(() => {
         const updateInspriationData = async () => {
-            const data = await fetchInspirationData('shader', searchTerm, selectedKeywords, selectedArtists)
+            const data = await fetchInspirationData('VFX', searchTerm, selectedKeywords, selectedArtists)
             setInspirationData(data)
             console.log('data :>> ', data);
 
@@ -59,7 +59,6 @@ export function Inspiration() {
                 setArtistCheckState(prevState => {
                     let newState = {} as CheckboxState;  // Copy previous state
                     data.forEach(({ artist }) => {
-                        console.log('update artists :>> ', artist);
                         const { name, category } = artist
                         const checked = prevState[category]?.[name]?.checked || false;
                         const prevCount = newState[category]?.[name]?.count || 0;
@@ -77,7 +76,13 @@ export function Inspiration() {
             };
 
             setKeywordCheckState(prevState => {
-                let newState = {} as CheckboxState; // Copy previous state
+                let newState = {...prevState} as CheckboxState; // Copy previous state
+                // for (const category in newState) {
+                //     for (const word in newState[category]) {
+                //         newState[category][word].count = 0;
+                //     }
+                // }
+
                 data.forEach(({ keywords }) => {
                     keywords.forEach(({ word, category }) => {
                         const checked = prevState[category]?.[word]?.checked || false;

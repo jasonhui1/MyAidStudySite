@@ -1,5 +1,4 @@
 import { CheckboxState } from "../../Pages/Inspirations";
-import { ArtistData } from "../../TypeScript/InspirationData";
 import CheckBox from "../Checkbox";
 
 interface ArtistsCheckBoxesProps {
@@ -9,22 +8,18 @@ interface ArtistsCheckBoxesProps {
 }
 export default function ArtistsCheckBoxes({ artistCheckState, setArtistCheckState }: ArtistsCheckBoxesProps) {
 
-    // const handleCategoryCheckbox = ((index: number): void => {
-    //     const updatedCategoriesCheckState = categoriesCheckState.map((check, i) =>
-    //         i === index ? !check : check
-    //     );
-    //     const isChecked = updatedCategoriesCheckState[index]
-    //     setCategoryCheckState(updatedCategoriesCheckState)
+    const handleCategoryCheckbox = ((category: string) => {
+        //Checks/ unchecks all related keywords
+        const all_checked = Object.values(artistCheckState[category]).every(word => word.checked)
 
-    //     //Checks/ unchecks all related keywords
-    //     const updatedKeywordCheckState = keywordCheckState.map((row, i) => {
-    //         if (!(i === index)) return row
-
-    //         return row.map((_) => isChecked)
-    //     });
-    //     setKeywordCheckState(updatedKeywordCheckState);
-
-    // })
+        setArtistCheckState(prevState => {
+            const newState = { ...prevState };
+            Object.keys(newState[category]).forEach(word => {
+                newState[category][word] = { ...newState[category][word], checked: !all_checked };
+            });
+            return newState;
+        });
+    })
 
     const handleKeywordCheckbox = ((category: string, word: string): void => {
         setArtistCheckState(prevState => {
@@ -36,19 +31,14 @@ export default function ArtistsCheckBoxes({ artistCheckState, setArtistCheckStat
     })
 
     return (
-        <div className=''>
+        <div className='outline p-4 gap-4 flex flex-col'>
             {Object.keys(artistCheckState).map((category, i) => {
+                const words = artistCheckState[category]
                 return (
                     <div key={i} className="">
-                        {/* <CheckBox value={category} onChange={() => handleCategoryCheckbox(category)} check={categoriesCheckState[i]} />
+                        <CheckBox value={category} onChange={() => handleCategoryCheckbox(category)} check={Object.values(words).every(word => word.checked)} />
                         <hr className=' bg-black' />
-                        <div className='grid grid-cols-2 gap-4 shadow-md p-4 '>
-                            {all_keywords[i].map(({ word, count }: KeywordData, j) => {
-                                if (count === 0) return <></>
-                                return <CheckBox key={j} value={word} onChange={() => handleKeywordCheckbox(i, j)} check={keywordCheckState[i][j]} after={count} className={`checkbox-count`} />
-                            })}
-                        </div> */}
-                        <ArtistCheckboxes category={category} names={artistCheckState[category]} handleKeywordCheckbox={handleKeywordCheckbox} />
+                        <ArtistCheckboxes category={category} names={words} handleKeywordCheckbox={handleKeywordCheckbox} />
                     </div>
                 )
             })}
@@ -66,7 +56,7 @@ function ArtistCheckboxes({ category, names, handleKeywordCheckbox }: ArtistChec
     console.log('names :>> ', names);
 
     return (
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 outline p-4">
+        <div className="grid grid-cols-3 lg:grid-cols-5 gap-4 shadow-md p-4 ">
             {
                 Object.entries(names).map(([word, { checked, count }], i) => (
                     <CheckBox
