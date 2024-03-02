@@ -44,7 +44,7 @@ export function Inspiration() {
     // const [categoriesCheckState, setCategoryCheckState] = useState<boolean[]>([]);
 
     const [openAdvSetting, setOpenAdvSetting] = useState(true)
-    const initialUpdateRef = useRef(false); // Use useRef for flag
+    const initialUpdateRef = useRef(true); // Use useRef for flag
     const lastUpdateRef = useRef<searchProps>(); // Use useRef for flag
 
     //Update Search
@@ -54,26 +54,27 @@ export function Inspiration() {
             setInspirationData(data)
             console.log('data :>> ', data);
 
-            setArtistCheckState(prevState => {
-                let newState = { ...prevState }; // Copy previous state
-                if (initialUpdateRef.current) {
+            if (initialUpdateRef.current) {
+                initialUpdateRef.current = false;
+                setArtistCheckState(prevState => {
+                    let newState = {} as CheckboxState;  // Copy previous state
                     data.forEach(({ artist }) => {
+                        console.log('update artists :>> ', artist);
                         const { name, category } = artist
-                        const defaultState = { checked: false, count: 0 };
-                        const prevState = newState[category]?.[name] || defaultState;
+                        const checked = prevState[category]?.[name]?.checked || false;
+                        const prevCount = newState[category]?.[name]?.count || 0;
 
                         newState[category] = {
                             ...(newState[category] || {}),
                             [name]: {
-                                checked: prevState.checked,
-                                count: prevState.count + 1
+                                checked: checked,
+                                count: prevCount + 1
                             }
                         };
                     });
-                    initialUpdateRef.current = false;
-                }
-                return newState; // Return the new state
-            });
+                    return newState; // Return the new state
+                })
+            };
 
             setKeywordCheckState(prevState => {
                 let newState = {} as CheckboxState; // Copy previous state
@@ -122,7 +123,7 @@ export function Inspiration() {
 
                         {openAdvSetting &&
                             <div className='flex flex-col gap-2'>
-                                {/* <AllArtistsCheckBoxes artists={allArtists} artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} /> */}
+                                <AllArtistsCheckBoxes artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} />
                                 <AllKeywordsCheckBoxes keywordCheckState={keywordCheckState} setKeywordCheckState={setKeywordCheckState} />
                             </div>
                         }
