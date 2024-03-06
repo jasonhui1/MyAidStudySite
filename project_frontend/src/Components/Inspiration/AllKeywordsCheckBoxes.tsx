@@ -1,5 +1,5 @@
 import { CheckboxState } from "../../Pages/Inspirations";
-import { CategoryData, KeywordData } from "../../TypeScript/InspirationData";
+import { CategoryData, KeywordData } from "../../Types/InspirationData";
 import CheckBox from "../Checkbox";
 
 interface KeywordsCheckBoxesProps {

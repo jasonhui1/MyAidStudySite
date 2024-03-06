@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import { client, urlFor } from '../client';
 import { getBreakdownData, getAllCategoryData, getBreakdownDataFromCategory } from '../FetchData/getdata';
 import { useParams, Link, useNavigate, useAsyncError } from 'react-router-dom'
-import { BreakdownData, AllBreakdownDataFromCategory } from '../TypeScript/BreakdownData';
+import { BreakdownData, AllBreakdownDataFromCategory } from '../Types/BreakdownData';
 import Sidebar from '../Components/Sidebar';
-import { CategoryData, KeywordData } from '../TypeScript/InspirationData';
+import { CategoryData, KeywordData } from '../Types/InspirationData';
 import { BreakdownCard } from '../Components/BreakdownCard';
 
 export default function BreakdownCategory() {

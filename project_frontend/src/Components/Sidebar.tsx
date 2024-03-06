@@ -1,5 +1,5 @@
 import React from 'react'
-import { CategoryData } from '../TypeScript/InspirationData'
+import { CategoryData } from '../Types/InspirationData'
 import { Link } from 'react-router-dom'
 
 interface ArrayOf<T>{

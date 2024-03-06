@@ -4,8 +4,8 @@ import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getBreakdownDataFromID } from '../FetchData/getdata';
 import { useParams, Link, useNavigate } from 'react-router-dom'
 // import {getImageDimensions} from '@sanity/asset-utils'
-import { BreakdownData } from '../TypeScript/BreakdownData';
-import { SanityFileTypes } from '../TypeScript/SanityFileTypes';
+import { BreakdownData } from '../Types/BreakdownData';
+import { SanityFileTypes } from '../Types/SanityFileTypes';
 import { BreakdownCard } from '../Components/BreakdownCard';
 
 

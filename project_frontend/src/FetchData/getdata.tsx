@@ -1,4 +1,4 @@
-import { InspirationData } from '../TypeScript/InspirationData';
+import { InspirationData } from '../Types/InspirationData';
 export function getBreakdownData(page: string = ''): string {
     let query;
     if (page !== '') {

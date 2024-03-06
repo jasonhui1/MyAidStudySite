@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchInspirationData } from '../FetchData/api';
-import { InspirationData } from '../TypeScript/InspirationData';
+import { InspirationData } from '../Types/InspirationData';
 import { isEqual } from 'lodash';
 
 interface UseFetchInspirationData {

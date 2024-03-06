@@ -1,4 +1,4 @@
-import { BreakdownData } from '../TypeScript/BreakdownData';
+import { BreakdownData } from '../Types/BreakdownData';
 import { useNavigate } from 'react-router-dom'
 import { urlFor } from '../client';
 

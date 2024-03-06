@@ -1,4 +1,4 @@
-import { CategoryData, InspirationData } from "../TypeScript/InspirationData";
+import { CategoryData, InspirationData } from "../Types/InspirationData";
 import { client } from "../client";
 import { getAllArtistData, getAllCategoryData, searchInspirationQuery, searchQueryThroughCategory } from "./getdata";
 

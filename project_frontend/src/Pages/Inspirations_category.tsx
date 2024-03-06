@@ -20,7 +20,7 @@ import {
     InspirationData,
     KeywordData,
     ArtistData
-} from '../TypeScript/InspirationData';
+} from '../Types/InspirationData';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
 import Sidebar from '../Components/Sidebar';

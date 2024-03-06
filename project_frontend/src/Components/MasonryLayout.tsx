@@ -2,7 +2,7 @@ import React from 'react'
 import Masonry from 'react-masonry-css';
 
 import InspirationEmbed from './Embed';
-import { InspirationData } from '../TypeScript/InspirationData';
+import { InspirationData } from '../Types/InspirationData';
 
 const breakpointColumnsObj = {
     default: 3,

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CategoryData } from '../TypeScript/InspirationData';
+import { CategoryData } from '../Types/InspirationData';
 import { getAllCategoryData, getBreakdownImageFirstX } from '../FetchData/getdata';
 import { client, urlFor } from '../client';
-import { BreakdownData } from '../TypeScript/BreakdownData';
+import { BreakdownData } from '../Types/BreakdownData';
 
 interface CategoryCircleProps {
     allCategories: CategoryData[];

@@ -3,9 +3,9 @@ import { client, urlFor } from '../client';
 import { PortableText, PortableTextReactComponents } from '@portabletext/react'
 import { getBreakdownData, getBreakdownDataFromID, getAllCategoryData } from '../FetchData/getdata';
 import { useParams, Link, useNavigate, useAsyncError } from 'react-router-dom'
-import { BreakdownData } from '../TypeScript/BreakdownData';
+import { BreakdownData } from '../Types/BreakdownData';
 import Sidebar from '../Components/Sidebar';
-import { CategoryData, KeywordData } from '../TypeScript/InspirationData';
+import { CategoryData, KeywordData } from '../Types/InspirationData';
 
 export default function AllBreakdown() {
 
