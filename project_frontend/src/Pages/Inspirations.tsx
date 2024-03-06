@@ -18,6 +18,7 @@ import AllArtistsCheckBoxes from '../Components/Inspiration/AllArtistsCheckBoxes
 import { fetchArtistData, fetchCategoryData, fetchInspirationData } from '../FetchData/api';
 import { isEqual } from 'lodash'; // Import the isEqual function from lodash library
 import { AdvancedSearch } from '../Components/AdvanceSearch';
+import { useFetchInspirationData } from '../Hooks/UseFetchInspirationData';
 
 
 export type CheckboxState = {
@@ -29,49 +30,33 @@ export type CheckboxState = {
     };
 };
 
-type searchProps = {
-    searchTerm: string,
-    keywords: string[]
-    artists: string[]
-}
 
 export function Inspiration() {
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [inspirationData, setInspirationData] = useState<InspirationData[]>([])
-    const [test, setTest] = useState<number>(0)
 
     const [keywordCheckState, setKeywordCheckState] = useState<CheckboxState>({});
     const [artistCheckState, setArtistCheckState] = useState<CheckboxState>({});
 
+    const selectedKeywords = useMemo(() => getSelectedCheckbox(keywordCheckState), [keywordCheckState]);
+    const selectedArtists = useMemo(() => getSelectedCheckbox(artistCheckState), [artistCheckState]);
+
+    const { inspirationData, isLoading, error } = useFetchInspirationData({
+        searchTerm,
+        keywords: selectedKeywords,
+        artists: selectedArtists,
+    });
+
     const initialUpdateRef = useRef(true); // Use useRef for flag
-    const lastUpdateRef = useRef<searchProps>(); // Use useRef for flag
 
-    //Update Search
+    //Update checkboxes values
     useEffect(() => {
-        const updateInspriationData = async () => {
-            const data = await fetchInspirationData(searchTerm, selectedKeywords, selectedArtists)
-            setInspirationData(data)
-
-            if (initialUpdateRef.current) {
-                initialUpdateRef.current = false;
-                setArtistCheckState(prevState => updateArtistCheckState(prevState, data));
-            }
-
-            setKeywordCheckState(prevState => updateKeywordCheckState(prevState, data));
+        if (initialUpdateRef.current) {
+            initialUpdateRef.current = false;
+            setArtistCheckState(prevState => updateArtistCheckState(prevState, inspirationData));
         }
 
-        const selectedKeywords = getSelectedCheckbox(keywordCheckState)
-        const selectedArtists = getSelectedCheckbox(artistCheckState)
-
-        // Only update if search props changed, to prevernt infinite loop
-        const currentSearchProps = { searchTerm, keywords: selectedKeywords, artists: selectedArtists }
-        if (!lastUpdateRef.current || !isEqual(lastUpdateRef.current, currentSearchProps)) {
-            console.log('querying')
-            lastUpdateRef.current = currentSearchProps;
-            updateInspriationData()
-        }
-
-    }, [searchTerm, keywordCheckState, artistCheckState]);
+        setKeywordCheckState(prevState => updateKeywordCheckState(prevState, inspirationData));
+    }, [inspirationData]);
 
     return (
         <div className=''>
