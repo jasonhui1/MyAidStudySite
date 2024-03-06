@@ -1,6 +1,6 @@
 import { CategoryData, InspirationData } from "../TypeScript/InspirationData";
 import { client } from "../client";
-import { getAllArtistData, getAllCategoryData, searchQueryThroughCategory } from "./getdata";
+import { getAllArtistData, getAllCategoryData, searchInspirationQuery, searchQueryThroughCategory } from "./getdata";
 
 export async function fetchArtistData(): Promise<string[]> {
     const artistQuery = getAllArtistData();
@@ -15,9 +15,9 @@ export async function fetchCategoryData(): Promise<[CategoryData[], string[][]]>
     return [categoryData, keywords];
 };
 
-export async function fetchInspirationData(category: string, searchTerm: string, selectedKeywords: string[], selectedArtists: string[]): Promise<InspirationData[]> {
-    const query = searchQueryThroughCategory(category, searchTerm, selectedKeywords, selectedArtists);
+export async function fetchInspirationData(searchTerm: string, selectedKeywords: string[], selectedArtists: string[]): Promise<InspirationData[]> {
+    const query = searchInspirationQuery(searchTerm, selectedKeywords, selectedArtists);
     const data = await client.fetch(query)
 
-    return data.inspirations;
+    return data;
 };

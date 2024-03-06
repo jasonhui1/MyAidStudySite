@@ -48,7 +48,7 @@ export function getBreakdownDataFromCategory(category: string): string {
     return query
 }
 
-export function getBreakdownImageFirstX(x:number) {
+export function getBreakdownImageFirstX(x: number) {
     const query = `*[_type == "breakdown"] 
         {
             title,
@@ -168,8 +168,9 @@ export function searchQueryThroughCategory(
 
     const combinedFilters = filter.join('&&')
 
+    const matchCategoryQuery = category === 'All' ? '* [_type == "category"]' : `* [_type == "category" && word match '${category}'] `
 
-    const query = `* [_type == "category" && word match '${category}'] {
+    const query = `${matchCategoryQuery}{
 
             'keywords': * [_type == 'keyword' && references(^._id)]{
                 'inspiration' : * [_type == 'inspiration' && references(^._id)]{ _id },
@@ -242,7 +243,7 @@ const mapping = {
 }
 
 
-export const searchInspirationQuery = (searchTerm: string, keywords: string[] = [], artists: string[] = [], category: string = ''): string => {
+export const searchInspirationQuery = (searchTerm: string, keywords: string[] = [], artists: string[] = []): string => {
     let normalKeys = ['title', 'artist']
     normalKeys = arrayMapping(normalKeys, mapping)
 
@@ -253,8 +254,14 @@ export const searchInspirationQuery = (searchTerm: string, keywords: string[] = 
     //initial
     filter.push(`_type=='inspiration'`)
 
+    if (artists.length > 0) {
+        let filterArtist = artists.map(name => `artist->name match '${name}'`).join('||')
+        filterArtist = `(${filterArtist})`
+        filter.push(filterArtist)
+    }
     //Match checked keywords, check for exact '_', instead of '*_*'
     if (keywords.length > 0) {
+        // let filterKeyword = `${keywords} in keywords[]->word`
         let filterKeyword = keywords.map(keyword => `keywords[]->word match '${keyword}'`).join('||')
         filterKeyword = `(${filterKeyword})`
 
@@ -263,15 +270,9 @@ export const searchInspirationQuery = (searchTerm: string, keywords: string[] = 
 
     //Match search words, keywords[]->word is in a different space because its an array (thats how GROQ works, deal with it)
     if (searchArray.length > 0) {
-        let filterRestOfKeys = searchArray?.map(item => `([${normalKeys}] match '*${item}*' || keywords[]->word match '*${item}*')`).join('&&')
+        let filterRestOfKeys = searchArray?.map(item => `([${normalKeys}] match '*${item}*' || keywords[]->word match '*${item}*' || artist->category->word match '*${item}*')`).join('&&')
         filterRestOfKeys = `(${filterRestOfKeys})`
         filter.push(filterRestOfKeys)
-    }
-
-    if (artists.length > 0) {
-        let filterArtist = artists.map(name => `artist->name match '${name}'`).join('||')
-        filterArtist = `(${filterArtist})`
-        filter.push(filterArtist)
     }
 
     const combinedFilters = filter.join('&&')
@@ -279,10 +280,9 @@ export const searchInspirationQuery = (searchTerm: string, keywords: string[] = 
     const inspirationQuery = `*[${combinedFilters}] { 
         _id,
         title,
-        artist,
         embedURL,
-        keywords[]->{_id, word}
-        
+        keywords[]->{word, 'category':category->word},
+        artist->{name,'category':category->word}
     }`;
 
     // if (keywords.length === 0) {
