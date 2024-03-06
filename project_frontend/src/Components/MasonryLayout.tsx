@@ -1,7 +1,7 @@
 import React from 'react'
 import Masonry from 'react-masonry-css';
 
-import InspirationEmbed from './Embed';
+import InspirationEmbed from './Embed/Embed';
 import { InspirationData } from '../Types/InspirationData';
 
 const breakpointColumnsObj = {
