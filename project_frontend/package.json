@@ -26,6 +26,7 @@
     "react-router-dom": "^6.8.2",
     "react-scripts": "^5.0.1",
     "react-twitter-embed": "^4.0.4",
+    "react-virtualized": "^9.22.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -54,6 +55,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.202",
+    "@types/react-virtualized": "^9.21.29",
     "source-map-loader": "^4.0.1",
     "tailwindcss": "^3.2.7",
     "tailwindcss-animate": "^1.0.5",

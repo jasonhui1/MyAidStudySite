@@ -53,8 +53,6 @@ interface ArtistCheckboxesProps {
 }
 function ArtistCheckboxes({ category, names, handleKeywordCheckbox }: ArtistCheckboxesProps) {
 
-    console.log('names :>> ', names);
-
     return (
         <div className="grid grid-cols-3 lg:grid-cols-5 gap-4 shadow-md p-4 ">
             {

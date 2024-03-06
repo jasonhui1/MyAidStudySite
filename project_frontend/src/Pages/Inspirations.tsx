@@ -1,6 +1,3 @@
-// ToDO: optimise tweet/ youtube call
-//  - by caching?
-
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 // import { TwitterTimelineEmbed, TwitterVideoEmbed } from 'react-twitter-embed';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom'
