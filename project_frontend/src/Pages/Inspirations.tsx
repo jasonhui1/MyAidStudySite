@@ -10,7 +10,7 @@ import { client } from '../client';
 import { InspirationCategory } from './Inspirations_category';
 import MasonryLayout from '../Components/MasonryLayout';
 import CheckBox from '../Components/Checkbox';
-import { InspirationData, CategoryData, KeywordData, ArtistData } from '../TypeScript/InspirationData';
+import { InspirationData, CategoryData, KeywordData, ArtistData } from '../Types/InspirationData';
 import Sidebar from '../Components/Sidebar';
 import Search from '../Components/Search';
 import AllKeywordsCheckBoxes from '../Components/Inspiration/AllKeywordsCheckBoxes';
@@ -19,6 +19,7 @@ import { fetchArtistData, fetchCategoryData, fetchInspirationData } from '../Fet
 import { isEqual } from 'lodash'; // Import the isEqual function from lodash library
 import { AdvancedSearch } from '../Components/AdvanceSearch';
 import { useFetchInspirationData } from '../Hooks/UseFetchInspirationData';
+import { getSelectedItems, updateCheckboxState } from '../Utils/checkboxUtils';
 
 
 export type CheckboxState = {
@@ -37,8 +38,8 @@ export function Inspiration() {
     const [keywordCheckState, setKeywordCheckState] = useState<CheckboxState>({});
     const [artistCheckState, setArtistCheckState] = useState<CheckboxState>({});
 
-    const selectedKeywords = useMemo(() => getSelectedCheckbox(keywordCheckState), [keywordCheckState]);
-    const selectedArtists = useMemo(() => getSelectedCheckbox(artistCheckState), [artistCheckState]);
+    const selectedKeywords = useMemo(() => getSelectedItems(keywordCheckState), [keywordCheckState]);
+    const selectedArtists = useMemo(() => getSelectedItems(artistCheckState), [artistCheckState]);
 
     const { inspirationData, isLoading, error } = useFetchInspirationData({
         searchTerm,
@@ -50,12 +51,12 @@ export function Inspiration() {
 
     //Update checkboxes values
     useEffect(() => {
-        if (initialUpdateRef.current) {
+        if (initialUpdateRef.current && inspirationData.length > 0) {
             initialUpdateRef.current = false;
-            setArtistCheckState(prevState => updateArtistCheckState(prevState, inspirationData));
+            setArtistCheckState((prevState) => updateCheckboxState(prevState, inspirationData, 'artist'));
         }
 
-        setKeywordCheckState(prevState => updateKeywordCheckState(prevState, inspirationData));
+        setKeywordCheckState((prevState) => updateCheckboxState(prevState, inspirationData, 'keyword'));
     }, [inspirationData]);
 
     return (
@@ -66,8 +67,8 @@ export function Inspiration() {
                 <div className='mt-4 container mx-auto'>
                     <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                     <AdvancedSearch>
-                        <AllKeywordsCheckBoxes keywordCheckState={keywordCheckState} setKeywordCheckState={setKeywordCheckState} />
                         <AllArtistsCheckBoxes artistCheckState={artistCheckState} setArtistCheckState={setArtistCheckState} />
+                        <AllKeywordsCheckBoxes keywordCheckState={keywordCheckState} setKeywordCheckState={setKeywordCheckState} />
                     </AdvancedSearch>
 
                     {true &&
@@ -81,55 +82,3 @@ export function Inspiration() {
     )
 }
 
-const getSelectedCheckbox = (keywordCheckState: CheckboxState) => {
-    // Loop through to filter checked
-    return Object.entries(keywordCheckState)
-        .flatMap(([_, words]) =>
-            Object.entries(words)
-                .filter(([_, { checked }]) => checked)
-                .map(([word]) => word)
-        );
-};
-
-const updateArtistCheckState = (prevState: CheckboxState, data: InspirationData[]) => {
-    let newState = {} as CheckboxState;
-    data.forEach(({ artist }) => {
-        const { name, category } = artist;
-        const checked = prevState[category]?.[name]?.checked || false;
-        const prevCount = newState[category]?.[name]?.count || 0;
-
-        newState[category] = {
-            ...(newState[category] || {}),
-            [name]: {
-                checked,
-                count: prevCount + 1,
-            },
-        };
-    });
-    return newState;
-};
-
-const updateKeywordCheckState = (prevState: CheckboxState, data: InspirationData[]) => {
-    let newState = { ...prevState } as CheckboxState;
-    for (const category in newState) {
-        for (const word in newState[category]) {
-            newState[category][word].count = 0;
-        }
-    }
-
-    data.forEach(({ keywords }) => {
-        keywords.forEach(({ word, category }) => {
-            const checked = prevState[category]?.[word]?.checked || false;
-            const prevCount = newState[category]?.[word]?.count || 0;
-
-            newState[category] = {
-                ...(newState[category] || {}),
-                [word]: {
-                    checked,
-                    count: prevCount + 1,
-                },
-            };
-        });
-    });
-    return newState;
-};
